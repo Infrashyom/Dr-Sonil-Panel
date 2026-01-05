@@ -1,12 +1,14 @@
+
 {
   "name": "dr-sonil-women-care-centre",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm start\" \"cd backend && npm start\"",
-    "start": "vite",
+    "dev": "concurrently \"vite\" \"cd backend && npm run dev\"",
     "build": "tsc && vite build",
+    "postinstall": "cd backend && npm install",
+    "start": "node backend/server.js",
     "preview": "vite preview"
   },
   "dependencies": {
