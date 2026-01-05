@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"cd backend && npm run dev\"",
-    "build": "vite build",
+    "build": "npm install && vite build",
     "postinstall": "cd backend && npm install",
     "start": "node backend/server.js",
     "preview": "vite preview"
