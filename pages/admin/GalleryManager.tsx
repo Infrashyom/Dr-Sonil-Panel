@@ -4,6 +4,7 @@ import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { getYoutubeThumbnail } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
+import { compressImage } from '../../utils/imageUtils';
 import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star } from 'lucide-react';
 
 export const GalleryManager = () => {
@@ -36,9 +37,17 @@ export const GalleryManager = () => {
     if (file) {
       setLoading(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setter(prev => ({ ...prev, url: reader.result as string }));
-        setLoading(false);
+      reader.onloadend = async () => {
+        try {
+          // Compress image before setting state
+          const compressed = await compressImage(reader.result as string);
+          setter((prev: any) => ({ ...prev, url: compressed }));
+        } catch (error) {
+          console.error("Compression failed, using original", error);
+          setter((prev: any) => ({ ...prev, url: reader.result as string }));
+        } finally {
+          setLoading(false);
+        }
       };
       reader.readAsDataURL(file);
     }

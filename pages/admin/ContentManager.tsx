@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { ContentItem } from '../../types';
+import { compressImage } from '../../utils/imageUtils';
 import { Plus, Trash2, Edit2, X, Check, UploadCloud, Loader2 } from 'lucide-react';
 import { IconMapper, AVAILABLE_ICONS } from '../../components/IconMapper';
 
@@ -80,8 +81,14 @@ export const ContentManager = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result });
+      reader.onloadend = async () => {
+        try {
+           const compressed = await compressImage(reader.result as string);
+           setFormData((prev: any) => ({ ...prev, image: compressed }));
+        } catch (err) {
+           console.error("Compression failed", err);
+           setFormData((prev: any) => ({ ...prev, image: reader.result }));
+        }
       };
       reader.readAsDataURL(file);
     }

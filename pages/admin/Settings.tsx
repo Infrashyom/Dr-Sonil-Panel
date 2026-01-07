@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { SiteConfig } from '../../types';
+import { compressImage } from '../../utils/imageUtils';
 import { Save, ShieldCheck, Building, MapPin, Eye, EyeOff, Image as ImageIcon, Loader2, Globe, MessageCircle, Share2, Instagram, Facebook, Youtube, Map, Video, Clock } from 'lucide-react';
 import { getYoutubeThumbnail } from '../../utils/youtube';
 
@@ -64,9 +65,17 @@ export const Settings = () => {
       if (file) {
           setUploading(true);
           const reader = new FileReader();
-          reader.onloadend = () => {
-              setConfig(prev => ({ ...prev, [field]: reader.result as string }));
-              setUploading(false);
+          reader.onloadend = async () => {
+              try {
+                // Compress before upload
+                const compressed = await compressImage(reader.result as string);
+                setConfig(prev => ({ ...prev, [field]: compressed }));
+              } catch (err) {
+                console.error("Compression failed", err);
+                setConfig(prev => ({ ...prev, [field]: reader.result as string }));
+              } finally {
+                setUploading(false);
+              }
           };
           reader.readAsDataURL(file);
       }
