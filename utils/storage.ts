@@ -1,7 +1,10 @@
 
 import { Appointment, GalleryItem, SiteConfig, HeroSlide, ContentItem } from '../types';
 
-const API_URL = 'http://localhost:5000/api';
+// CHANGED: Use relative path. 
+// In Dev: Vite proxies '/api' -> 'http://localhost:5000/api'
+// In Prod: The backend serves the frontend, so '/api' refers to the same domain.
+const API_URL = '/api';
 
 // Fallback config to prevent null crashes
 const DEFAULT_CONFIG: SiteConfig = {

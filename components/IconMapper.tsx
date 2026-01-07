@@ -1,10 +1,11 @@
 
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
-import { LucideProps } from 'lucide-react';
 
-interface IconProps extends LucideProps {
+interface IconProps extends React.SVGProps<SVGSVGElement> {
   name: string;
+  size?: number | string;
+  strokeWidth?: number | string;
 }
 
 export const IconMapper: React.FC<IconProps> = ({ name, ...props }) => {
@@ -12,9 +13,11 @@ export const IconMapper: React.FC<IconProps> = ({ name, ...props }) => {
   const IconComponent = LucideIcons[name];
 
   if (!IconComponent) {
+    // @ts-ignore
     return <LucideIcons.HelpCircle {...props} />;
   }
 
+  // @ts-ignore
   return <IconComponent {...props} />;
 };
 
