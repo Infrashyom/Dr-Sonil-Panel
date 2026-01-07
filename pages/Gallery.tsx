@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FadeInUp, AnimatedBlobs } from '../components/Animations';
 import { storage } from '../utils/storage';
 import { getYoutubeThumbnail, getYoutubeEmbedUrl } from '../utils/youtube';
+import { getOptimizedUrl } from '../utils/imageUtils';
 import { GalleryItem } from '../types';
 import { X, PlayCircle } from 'lucide-react';
 
@@ -51,8 +52,9 @@ export const Gallery = () => {
               onClick={() => setSelectedItem(item)}
             >
               <div className="aspect-[4/3] overflow-hidden relative">
+                {/* Optimization: Resize images to 500px for grid view */}
                 <img 
-                  src={item.type === 'video' ? getYoutubeThumbnail(item.url) : item.url} 
+                  src={item.type === 'video' ? getYoutubeThumbnail(item.url) : getOptimizedUrl(item.url, 500)} 
                   alt={item.title} 
                   className="w-full h-full object-cover transition-transform group-hover:scale-110" 
                   loading="lazy" 
@@ -89,7 +91,8 @@ export const Gallery = () => {
                  ></iframe>
                </div>
              ) : (
-               <img src={selectedItem.url} alt={selectedItem.title} className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-lg" />
+               // Optimization: Load larger version (1200px) when modal is open
+               <img src={getOptimizedUrl(selectedItem.url, 1200)} alt={selectedItem.title} className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-lg" />
              )}
           </div>
           

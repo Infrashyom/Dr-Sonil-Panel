@@ -11,6 +11,7 @@ import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCir
 import { storage } from '../utils/storage';
 import { GalleryItem, SiteConfig, Service, FAQ } from '../types';
 import { getYoutubeThumbnail, getYoutubeEmbedUrl } from '../utils/youtube';
+import { getOptimizedUrl } from '../utils/imageUtils';
 
 const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onClick: () => void }> = ({ question, answer, isOpen, onClick }) => {
   return (
@@ -57,18 +58,6 @@ const MeetExpertSkeleton = () => (
             <div className="h-4 w-full bg-gray-100 rounded animate-pulse"></div>
             <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse"></div>
           </div>
-           <div className="grid grid-cols-2 gap-6 pt-4">
-             {[1,2,3,4].map(i => (
-               <div key={i} className="flex gap-3 items-center">
-                 <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse"></div>
-                 <div className="h-4 w-24 bg-gray-100 rounded animate-pulse"></div>
-               </div>
-             ))}
-           </div>
-          <div className="flex gap-4 pt-6">
-            <div className="h-14 w-40 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-14 w-40 bg-gray-200 rounded-full animate-pulse"></div>
-          </div>
         </div>
       </div>
     </div>
@@ -81,26 +70,32 @@ export const Home = () => {
   const [videoPreview, setVideoPreview] = useState<GalleryItem[]>([]);
   const [playingVideo, setPlayingVideo] = useState<GalleryItem | null>(null);
   const [config, setConfig] = useState<SiteConfig | null>(null);
-  const [loading, setLoading] = useState(true);
   
-  // Dynamic Content
+  // Dynamic Content State
   const [services, setServices] = useState<Service[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
+  
+  // Independent loading state for critical section
+  const [configLoading, setConfigLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    // 1. Load Critical Data First (Config)
+    const loadConfig = async () => {
       try {
-        // Basic Config
         const conf = await storage.getConfig();
         setConfig(conf);
-        
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+    loadConfig();
+
+    // 2. Load Secondary Data Independently (Don't block UI)
+    const loadSecondaryData = async () => {
+      try {
         // Content
-        const srvs = await storage.getContent('service');
-        setServices(srvs.map(i => i.data));
-        
-        const fqs = await storage.getContent('faq');
-        setFaqs(fqs.map(i => i.data));
+        storage.getContent('service').then(data => setServices(data.map(i => i.data)));
+        storage.getContent('faq').then(data => setFaqs(data.map(i => i.data)));
 
         // Gallery
         const items = await storage.getGallery();
@@ -115,12 +110,10 @@ export const Home = () => {
           setVideoPreview(allVideos.slice(0, 3));
         }
       } catch (error) {
-        console.error("Failed to load home data", error);
-      } finally {
-        setLoading(false);
+        console.error("Failed to load secondary home data", error);
       }
     };
-    loadData();
+    loadSecondaryData();
   }, []);
 
   const midIndex = Math.ceil(faqs.length / 2);
@@ -136,14 +129,16 @@ export const Home = () => {
     }
   };
 
-  const doctorImage = config?.doctorImage || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200";
+  const doctorImage = config?.doctorImage 
+    ? getOptimizedUrl(config.doctorImage, 800) // Optimize doctor image
+    : "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=1200";
 
   return (
     <div className="bg-white overflow-x-hidden font-sans">
       <HeroCarousel />
 
-      {/* Meet The Expert Section - With Loading Skeleton */}
-      {loading ? (
+      {/* Meet The Expert Section */}
+      {configLoading ? (
         <MeetExpertSkeleton />
       ) : (
         <section className="py-24 bg-white relative z-10">
@@ -159,6 +154,7 @@ export const Home = () => {
                         src={doctorImage} 
                         alt="Dr. Sonil Srivastava" 
                         className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+                        loading="eager"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-transparent to-transparent"></div>
                       <div className="absolute bottom-10 left-10 text-white z-20">
@@ -325,7 +321,13 @@ export const Home = () => {
              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px] md:auto-rows-[250px]">
                 {galleryPreview.map((item, idx) => (
                   <div key={idx} className={`group relative rounded-3xl overflow-hidden bg-gray-200 ${getBentoClass(idx)}`}>
-                     <img src={item.url} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                     {/* Optimization: Resize to 500px for thumbnails */}
+                     <img 
+                      src={getOptimizedUrl(item.url, 500)} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      loading="lazy"
+                     />
                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 flex items-end">
                         <span className="text-white font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{item.title}</span>
                      </div>
