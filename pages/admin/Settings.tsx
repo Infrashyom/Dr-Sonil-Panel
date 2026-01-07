@@ -4,10 +4,13 @@ import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { SiteConfig } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Save, ShieldCheck, Building, MapPin, Eye, EyeOff, Image as ImageIcon, Loader2, Globe, MessageCircle, Share2, Instagram, Facebook, Youtube, Map, Video, Clock } from 'lucide-react';
+import { Save, ShieldCheck, Building, MapPin, Eye, EyeOff, Image as ImageIcon, Loader2, MessageCircle, Share2, Instagram, Facebook, Youtube, Map, Video, Clock } from 'lucide-react';
 import { getYoutubeThumbnail } from '../../utils/youtube';
+import { useToast } from '../../components/Toast';
 
 export const Settings = () => {
+  const { showToast } = useToast();
+  
   // Initialize with default values so the page loads instantly
   const [config, setConfig] = useState<SiteConfig>({
     name: '',
@@ -31,7 +34,9 @@ export const Settings = () => {
   });
   
   const [isEditing, setIsEditing] = useState(false);
-  const [msg, setMsg] = useState('');
+  const [saving, setSaving] = useState(false); // Loading state for General Info
+  const [updatingKey, setUpdatingKey] = useState(false); // Loading state for Password
+  
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -53,10 +58,33 @@ export const Settings = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (config) {
-      await storage.updateConfig(config);
-      setMsg('Updated!');
-      setIsEditing(false);
-      setTimeout(() => setMsg(''), 3000);
+      setSaving(true);
+      try {
+        await storage.updateConfig(config);
+        showToast('Clinic details updated successfully!', 'success');
+        setIsEditing(false);
+      } catch (err) {
+        showToast('Failed to update settings', 'error');
+      } finally {
+        setSaving(false);
+      }
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if(!newPassword) {
+      showToast('Please enter a new password', 'error');
+      return;
+    }
+    setUpdatingKey(true);
+    try {
+      await storage.changePassword(newPassword);
+      showToast('Access Key Updated Successfully', 'success');
+      setNewPassword('');
+    } catch (err) {
+      showToast('Failed to update access key', 'error');
+    } finally {
+      setUpdatingKey(false);
     }
   };
 
@@ -70,6 +98,7 @@ export const Settings = () => {
                 // Compress before upload
                 const compressed = await compressImage(reader.result as string);
                 setConfig(prev => ({ ...prev, [field]: compressed }));
+                showToast('Image processed. Click Save to apply.', 'info');
               } catch (err) {
                 console.error("Compression failed", err);
                 setConfig(prev => ({ ...prev, [field]: reader.result as string }));
@@ -330,11 +359,11 @@ export const Settings = () => {
            </div>
 
            {isEditing && (
-             <button className="w-full bg-pink-900 text-white p-4 rounded-xl font-bold hover:bg-pink-800 transition-colors shadow-lg shadow-pink-900/20 flex items-center justify-center gap-2">
-               <Save size={18} /> Save Changes
+             <button disabled={saving || uploading} className="w-full bg-pink-900 text-white p-4 rounded-xl font-bold hover:bg-pink-800 transition-colors shadow-lg shadow-pink-900/20 flex items-center justify-center gap-2">
+               {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} 
+               {saving ? 'Saving Changes...' : 'Save Changes'}
              </button>
            )}
-           {msg && <p className="text-green-600 font-bold text-center bg-green-50 p-3 rounded-xl animate-fade-in">{msg}</p>}
         </form>
 
         {/* Security Card */}
@@ -367,10 +396,12 @@ export const Settings = () => {
            </div>
 
            <button 
-             onClick={() => { storage.changePassword(newPassword); alert('Access Key Updated Successfully'); setNewPassword(''); }} 
+             onClick={handleUpdatePassword}
+             disabled={updatingKey}
              className="w-full bg-gray-900 text-white p-4 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg flex items-center justify-center gap-2"
            >
-             Update Access Key
+             {updatingKey ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
+             {updatingKey ? 'Updating...' : 'Update Access Key'}
            </button>
         </div>
       </div>

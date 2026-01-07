@@ -12,6 +12,7 @@ import { FadeInUp } from './components/Animations';
 import { storage } from './utils/storage';
 import { NotFound } from './pages/NotFound';
 import { Doctor } from './types';
+import { ToastProvider } from './components/Toast';
 
 // Admin Pages
 import { AdminLogin } from './pages/admin/Login';
@@ -74,46 +75,48 @@ const DoctorsPage = () => {
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
-        {/* 1. Admin Login (Standalone) */}
-        <Route path="/admin/login" element={<AdminLogin />} />
+    <ToastProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* 1. Admin Login (Standalone) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* 2. Admin Portal (Protected) */}
-        <Route path="/admin/*" element={
-          <ProtectedRoute>
-            <Routes>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="appointments" element={<Appointments />} />
-              <Route path="gallery" element={<GalleryManager />} />
-              <Route path="content" element={<ContentManager />} />
-              <Route path="settings" element={<Settings />} />
-              {/* Default redirect to dashboard */}
-              <Route path="" element={<Navigate to="dashboard" replace />} />
-              {/* Catch unknown admin routes */}
-              <Route path="*" element={<Navigate to="dashboard" replace />} />
-            </Routes>
-          </ProtectedRoute>
-        } />
+          {/* 2. Admin Portal (Protected) */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute>
+              <Routes>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="appointments" element={<Appointments />} />
+                <Route path="gallery" element={<GalleryManager />} />
+                <Route path="content" element={<ContentManager />} />
+                <Route path="settings" element={<Settings />} />
+                {/* Default redirect to dashboard */}
+                <Route path="" element={<Navigate to="dashboard" replace />} />
+                {/* Catch unknown admin routes */}
+                <Route path="*" element={<Navigate to="dashboard" replace />} />
+              </Routes>
+            </ProtectedRoute>
+          } />
 
-        {/* 3. Public Website (Layout Wrapper) */}
-        <Route path="/*" element={
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="about" element={<About />} />
-              <Route path="services" element={<Services />} />
-              <Route path="doctors" element={<DoctorsPage />} />
-              <Route path="gallery" element={<Gallery />} />
-              <Route path="contact" element={<Contact />} />
-              {/* 404 Page Not Found */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        } />
-      </Routes>
-    </Router>
+          {/* 3. Public Website (Layout Wrapper) */}
+          <Route path="/*" element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="about" element={<About />} />
+                <Route path="services" element={<Services />} />
+                <Route path="doctors" element={<DoctorsPage />} />
+                <Route path="gallery" element={<Gallery />} />
+                <Route path="contact" element={<Contact />} />
+                {/* 404 Page Not Found */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          } />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 

@@ -6,8 +6,10 @@ import { getYoutubeThumbnail } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
 import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star } from 'lucide-react';
+import { useToast } from '../../components/Toast';
 
 export const GalleryManager = () => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'gallery' | 'hero'>('gallery');
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [galleryModal, setGalleryModal] = useState(false);
@@ -42,6 +44,7 @@ export const GalleryManager = () => {
           // Compress image before setting state
           const compressed = await compressImage(reader.result as string);
           setter((prev: any) => ({ ...prev, url: compressed }));
+          showToast('Image processed ready for upload', 'info');
         } catch (error) {
           console.error("Compression failed, using original", error);
           setter((prev: any) => ({ ...prev, url: reader.result as string }));
@@ -62,6 +65,7 @@ export const GalleryManager = () => {
     setNewGalleryItem({ url: '', title: '', category: 'clinic', featured: false });
     setLoading(false);
     setGalleryModal(false);
+    showToast('Gallery item added successfully', 'success');
   };
 
   const deleteGalleryItem = async () => {
@@ -69,6 +73,7 @@ export const GalleryManager = () => {
       await storage.deleteGalleryItem(galleryDeleteId);
       await refreshData();
       setGalleryDeleteId(null);
+      showToast('Item deleted', 'success');
     }
   };
 
@@ -76,6 +81,7 @@ export const GalleryManager = () => {
     e.stopPropagation();
     await storage.toggleGalleryFeature(id);
     await refreshData();
+    showToast('Featured status updated', 'info');
   };
 
   const addHeroSlide = async (e: React.FormEvent) => {
@@ -87,6 +93,7 @@ export const GalleryManager = () => {
     setNewHeroSlide({ url: '', title: '', subtitle: '' });
     setLoading(false);
     setHeroModal(false);
+    showToast('Banner added successfully', 'success');
   };
 
   const deleteHeroSlide = async () => {
@@ -94,6 +101,7 @@ export const GalleryManager = () => {
       await storage.deleteHeroSlide(heroDeleteId);
       await refreshData();
       setHeroDeleteId(null);
+      showToast('Banner removed', 'success');
     }
   };
 

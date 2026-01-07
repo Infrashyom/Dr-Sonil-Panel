@@ -1,10 +1,11 @@
+
 import mongoose from 'mongoose';
 
 const appointmentSchema = new mongoose.Schema({
   patientName: { type: String, required: true },
   phone: { type: String, required: true },
   department: { type: String, required: true },
-  date: { type: String }, // Storing as string to match frontend 'YYYY-MM-DD' or free text
+  date: { type: String, required: true }, 
   reason: { type: String },
   status: { 
     type: String, 

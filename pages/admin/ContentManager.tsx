@@ -6,6 +6,7 @@ import { ContentItem } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
 import { Plus, Trash2, Edit2, X, Check, UploadCloud, Loader2 } from 'lucide-react';
 import { IconMapper, AVAILABLE_ICONS } from '../../components/IconMapper';
+import { useToast } from '../../components/Toast';
 
 const TABS = [
   { id: 'doctor', label: 'Doctors Team' },
@@ -15,6 +16,7 @@ const TABS = [
 ];
 
 export const ContentManager = () => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('doctor');
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,19 +62,27 @@ export const ContentManager = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
-    if (editingItem) {
-      await storage.updateContent(editingItem._id, formData);
-    } else {
-      await storage.addContent(activeTab, formData);
+    try {
+      if (editingItem) {
+        await storage.updateContent(editingItem._id, formData);
+        showToast('Updated successfully', 'success');
+      } else {
+        await storage.addContent(activeTab, formData);
+        showToast('Added successfully', 'success');
+      }
+      await refreshData();
+      setModalOpen(false);
+    } catch (err) {
+      showToast('Operation failed', 'error');
+    } finally {
+      setUploading(false);
     }
-    await refreshData();
-    setUploading(false);
-    setModalOpen(false);
   };
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this item?')) {
       await storage.deleteContent(id);
+      showToast('Item deleted', 'success');
       refreshData();
     }
   };
@@ -85,6 +95,7 @@ export const ContentManager = () => {
         try {
            const compressed = await compressImage(reader.result as string);
            setFormData((prev: any) => ({ ...prev, image: compressed }));
+           showToast('Image processed', 'info');
         } catch (err) {
            console.error("Compression failed", err);
            setFormData((prev: any) => ({ ...prev, image: reader.result }));

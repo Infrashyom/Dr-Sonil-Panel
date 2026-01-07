@@ -18,13 +18,29 @@ const DEFAULT_CONFIG: SiteConfig = {
   socials: { instagram: "", facebook: "", youtube: "" }
 };
 
+// Helper: Map MongoDB _id to id for frontend
+const mapId = (item: any) => {
+  if (!item) return item;
+  // If item has _id but no id, map it.
+  if (item._id && !item.id) {
+    return { ...item, id: item._id };
+  }
+  return item;
+};
+
+const mapList = (list: any[]) => {
+  if (!Array.isArray(list)) return [];
+  return list.map(mapId);
+};
+
 export const storage = {
   // --- APPOINTMENTS ---
   getAppointments: async (): Promise<Appointment[]> => {
     try {
-      const res = await fetch(`${API_URL}/appointments`);
+      const res = await fetch(`${API_URL}/appointments`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to fetch');
-      return await res.json();
+      const data = await res.json();
+      return mapList(data);
     } catch (err) {
       console.error(err);
       return [];
@@ -37,22 +53,30 @@ export const storage = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(apt),
     });
-    return await res.json();
+    if (!res.ok) throw new Error('Failed to create appointment');
+    return mapId(await res.json());
   },
 
   updateAppointmentStatus: async (id: string, status: Appointment['status']) => {
-    await fetch(`${API_URL}/appointments/${id}`, {
+    const res = await fetch(`${API_URL}/appointments/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     });
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Failed to update status: ${res.status} ${errorText}`);
+    }
+    return mapId(await res.json());
   },
 
   // --- GALLERY ---
   getGallery: async (): Promise<GalleryItem[]> => {
     try {
-      const res = await fetch(`${API_URL}/gallery`);
-      return await res.json();
+      const res = await fetch(`${API_URL}/gallery`, { cache: 'no-store' });
+      const data = await res.json();
+      return mapList(data);
     } catch (err) {
       return [];
     }
@@ -80,8 +104,9 @@ export const storage = {
   // --- HERO SLIDES ---
   getHeroSlides: async (): Promise<HeroSlide[]> => {
     try {
-      const res = await fetch(`${API_URL}/hero`);
-      return await res.json();
+      const res = await fetch(`${API_URL}/hero`, { cache: 'no-store' });
+      const data = await res.json();
+      return mapList(data);
     } catch (err) {
       return [];
     }
@@ -102,7 +127,7 @@ export const storage = {
   // --- CONFIG ---
   getConfig: async (): Promise<SiteConfig> => {
     try {
-      const res = await fetch(`${API_URL}/config`);
+      const res = await fetch(`${API_URL}/config`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Backend not available');
       return await res.json();
     } catch (err) {
@@ -121,7 +146,8 @@ export const storage = {
   // --- GENERIC CONTENT (Services, FAQs, Doctors, etc) ---
   getContent: async (type: string): Promise<ContentItem[]> => {
     try {
-      const res = await fetch(`${API_URL}/content?type=${type}`);
+      const res = await fetch(`${API_URL}/content?type=${type}`, { cache: 'no-store' });
+      // Content items usually use _id directly in types, but mapping doesn't hurt
       return await res.json();
     } catch (err) {
       return [];
