@@ -4,7 +4,7 @@ import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { ContentItem } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Plus, Trash2, Edit2, X, Check, UploadCloud, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, UploadCloud, Loader2, AlertTriangle } from 'lucide-react';
 import { IconMapper, AVAILABLE_ICONS } from '../../components/IconMapper';
 import { useToast } from '../../components/Toast';
 
@@ -22,6 +22,9 @@ export const ContentManager = () => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
+
+  // Delete Confirmation State
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<any>({});
@@ -79,11 +82,21 @@ export const ContentManager = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this item?')) {
-      await storage.deleteContent(id);
-      showToast('Item deleted', 'success');
-      refreshData();
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteId) {
+        try {
+            await storage.deleteContent(deleteId);
+            showToast('Item deleted', 'success');
+            refreshData();
+        } catch (error) {
+            showToast('Failed to delete item', 'error');
+        } finally {
+            setDeleteId(null);
+        }
     }
   };
 
@@ -175,7 +188,7 @@ export const ContentManager = () => {
                {/* Actions */}
                <div className="flex gap-2 shrink-0">
                  <button onClick={() => handleOpenModal(item)} className="p-2 bg-gray-50 text-blue-600 rounded-lg hover:bg-blue-50"><Edit2 size={18} /></button>
-                 <button onClick={() => handleDelete(item._id)} className="p-2 bg-gray-50 text-red-600 rounded-lg hover:bg-red-50"><Trash2 size={18} /></button>
+                 <button onClick={() => handleDeleteClick(item._id)} className="p-2 bg-gray-50 text-red-600 rounded-lg hover:bg-red-50"><Trash2 size={18} /></button>
                </div>
             </div>
           ))}
@@ -259,6 +272,23 @@ export const ContentManager = () => {
                {uploading ? <Loader2 className="animate-spin" /> : <><Check size={20} /> Save Changes</>}
              </button>
            </form>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+           <div className="bg-white p-8 rounded-3xl text-center shadow-2xl max-w-sm w-full animate-fade-in">
+                <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle size={32} />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">Delete Item?</h3>
+                <p className="text-gray-500 mb-8 text-sm">This action cannot be undone.</p>
+                <div className="flex gap-3">
+                  <button onClick={() => setDeleteId(null)} className="flex-1 py-3 bg-gray-50 font-bold rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
+                  <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 font-bold text-white rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20">Delete</button>
+                </div>
+           </div>
         </div>
       )}
     </AdminLayout>
