@@ -20,7 +20,7 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onC
         onClick={onClick}
         className="w-full px-6 py-5 flex items-center justify-between text-left group transition-all"
       >
-        <span className={`text-base font-bold font-sans transition-colors duration-300 pr-4 ${isOpen ? 'text-pink-700' : 'text-gray-900'}`}>
+        <span className={`text-sm md:text-base font-bold font-sans transition-colors duration-300 pr-4 ${isOpen ? 'text-pink-700' : 'text-gray-900'}`}>
           {question}
         </span>
         <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-pink-600 text-white rotate-180' : 'bg-pink-50 text-pink-600'}`}>
@@ -44,7 +44,7 @@ const MeetExpertSkeleton = () => (
     <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
       <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
         {/* Image Skeleton */}
-        <div className="w-full lg:w-1/2 relative h-[500px] lg:h-[700px] bg-gray-100 rounded-[3rem] animate-pulse"></div>
+        <div className="w-full lg:w-1/2 relative h-[400px] lg:h-[700px] bg-gray-100 rounded-[3rem] animate-pulse"></div>
         {/* Text Skeleton */}
         <div className="w-full lg:w-1/2 space-y-8">
           <div className="flex items-center gap-3">
@@ -141,15 +141,15 @@ export const Home = () => {
       {configLoading ? (
         <MeetExpertSkeleton />
       ) : (
-        <section className="py-24 bg-white relative z-10">
+        <section className="py-16 md:py-24 bg-white relative z-10">
           <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
-            <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
               
               {/* Image Side - Fully Enlarged */}
-              <div className="w-full lg:w-1/2 relative">
-                 <div className="relative w-full aspect-[4/5] lg:aspect-auto lg:h-[700px]">
-                    <div className="absolute top-4 right-4 w-full h-full border-2 border-pink-100 rounded-[3rem] z-0 hidden md:block translate-x-4 translate-y-4"></div>
-                    <div className="relative rounded-[3rem] overflow-hidden shadow-2xl z-10 w-full h-full">
+              <div className="w-full lg:w-1/2 relative order-2 lg:order-1">
+                 <div className="relative w-full aspect-[3/4] lg:aspect-auto lg:h-[700px]">
+                    <div className="absolute top-4 right-4 w-full h-full border-2 border-pink-100 rounded-[2rem] md:rounded-[3rem] z-0 hidden md:block translate-x-4 translate-y-4"></div>
+                    <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl z-10 w-full h-full">
                       <img 
                         src={doctorImage} 
                         alt="Dr. Sonil Srivastava" 
@@ -157,38 +157,39 @@ export const Home = () => {
                         loading="eager"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-transparent to-transparent"></div>
-                      <div className="absolute bottom-10 left-10 text-white z-20">
-                         <p className="text-sm font-bold uppercase tracking-wider mb-2 opacity-90">Experience</p>
-                         <p className="text-5xl font-serif font-bold">15+ Years</p>
+                      <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white z-20">
+                         <p className="text-xs md:text-sm font-bold uppercase tracking-wider mb-2 opacity-90">Experience</p>
+                         <p className="text-4xl md:text-5xl font-serif font-bold">15+ Years</p>
                       </div>
                     </div>
-                    <div className="absolute -bottom-8 -right-8 bg-white p-6 rounded-2xl shadow-xl z-20 flex items-center gap-4 border border-pink-50 max-w-[240px] hidden md:flex">
-                       <div className="bg-pink-50 p-3 rounded-xl text-pink-600">
-                          <Award size={32} />
+                    {/* Floating badge - hidden on small mobile, visible on larger */}
+                    <div className="absolute -bottom-6 -right-4 md:-bottom-8 md:-right-8 bg-white p-4 md:p-6 rounded-2xl shadow-xl z-20 flex items-center gap-4 border border-pink-50 max-w-[200px] md:max-w-[240px] hidden sm:flex">
+                       <div className="bg-pink-50 p-2 md:p-3 rounded-xl text-pink-600 shrink-0">
+                          <Award size={24} className="md:w-8 md:h-8" />
                        </div>
                        <div>
-                          <p className="text-xs uppercase font-bold text-gray-400 tracking-wider">Gold Medalist</p>
-                          <p className="font-serif font-bold text-gray-900 text-base leading-tight">Aligarh Muslim Univ.</p>
+                          <p className="text-[10px] md:text-xs uppercase font-bold text-gray-400 tracking-wider">Gold Medalist</p>
+                          <p className="font-serif font-bold text-gray-900 text-sm md:text-base leading-tight">Aligarh Muslim Univ.</p>
                        </div>
                     </div>
                  </div>
               </div>
 
               {/* Text Side */}
-              <div className="w-full lg:w-1/2">
+              <div className="w-full lg:w-1/2 order-1 lg:order-2">
                 <FadeInUp>
-                  <div className="flex items-center gap-3 mb-6">
+                  <div className="flex items-center gap-3 mb-4 md:mb-6">
                     <span className="w-12 h-[2px] bg-pink-600"></span>
-                    <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-sm">Medical Director</span>
+                    <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs md:text-sm">Medical Director</span>
                   </div>
-                  <h2 className="text-5xl lg:text-7xl font-serif font-bold text-[#590d22] mb-6 leading-none">
+                  <h2 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-[#590d22] mb-4 md:mb-6 leading-none">
                     {config?.doctorName || 'Dr. Sonil'}
                   </h2>
-                  <h3 className="text-2xl font-medium text-pink-700 mb-8 italic">
+                  <h3 className="text-xl md:text-2xl font-medium text-pink-700 mb-6 md:mb-8 italic">
                     {config?.designation || 'Specialist'}
                   </h3>
                   
-                  <div className="space-y-6 text-gray-600 leading-relaxed font-light mb-10 text-lg text-justify lg:text-left">
+                  <div className="space-y-6 text-gray-600 leading-relaxed font-light mb-8 md:mb-10 text-base md:text-lg text-justify lg:text-left">
                     <p>
                       With a legacy of excellence in women's healthcare, {config?.doctorName || 'Dr. Sonil'} brings compassion and advanced medical science together. As a Gold Medalist and specialist in high-risk pregnancies, she has successfully handled thousands of complex cases.
                     </p>
@@ -197,18 +198,18 @@ export const Home = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 mb-10">
-                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-6 h-6" /><span className="font-bold text-gray-700">Painless Delivery</span></div>
-                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-6 h-6" /><span className="font-bold text-gray-700">Advanced IVF Lab</span></div>
-                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-6 h-6" /><span className="font-bold text-gray-700">High-Risk Care</span></div>
-                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-6 h-6" /><span className="font-bold text-gray-700"><span className="text-pink-600">3D</span> Laparoscopy</span></div>
+                  <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
+                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">Painless Delivery</span></div>
+                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">Advanced IVF Lab</span></div>
+                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">High-Risk Care</span></div>
+                     <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base"><span className="text-pink-600">3D</span> Laparoscopy</span></div>
                   </div>
 
-                  <div className="flex flex-wrap gap-5">
-                    <Link to="/about" className="px-10 py-4 bg-[#590d22] text-white rounded-full font-bold uppercase tracking-wider text-sm hover:bg-[#800f2f] transition-all shadow-lg hover:-translate-y-1">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+                    <Link to="/about" className="px-8 py-4 bg-[#590d22] text-white rounded-full font-bold uppercase tracking-wider text-sm hover:bg-[#800f2f] transition-all shadow-lg hover:-translate-y-1 text-center">
                       Read Full Profile
                     </Link>
-                    <Link to="/contact" className="px-10 py-4 bg-white border border-gray-300 text-gray-900 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-gray-50 transition-all hover:-translate-y-1">
+                    <Link to="/contact" className="px-8 py-4 bg-white border border-gray-300 text-gray-900 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-gray-50 transition-all hover:-translate-y-1 text-center">
                       Book Appointment
                     </Link>
                   </div>
@@ -222,7 +223,7 @@ export const Home = () => {
       <ReasonsSection />
 
       {/* Stats Section */}
-      <section className="py-20 bg-pink-900 text-white relative overflow-hidden">
+      <section className="py-16 md:py-20 bg-pink-900 text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-64 h-64 bg-pink-500 rounded-full blur-[100px] opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500 rounded-full blur-[100px] opacity-30 translate-x-1/2 translate-y-1/2"></div>
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
@@ -237,13 +238,13 @@ export const Home = () => {
                  const suffix = stat.value.replace(/[0-9]/g, '');
                  return (
                   <div key={idx} className="flex flex-col items-center text-center group">
-                     <div className="mb-4 bg-white/10 p-4 rounded-2xl text-pink-300 group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
-                       <stat.icon size={32} strokeWidth={1.5} />
+                     <div className="mb-4 bg-white/10 p-3 md:p-4 rounded-2xl text-pink-300 group-hover:scale-110 transition-transform duration-300 backdrop-blur-sm">
+                       <stat.icon size={28} className="md:w-8 md:h-8" strokeWidth={1.5} />
                      </div>
-                     <h3 className="text-4xl lg:text-5xl font-serif font-bold text-white mb-2">
+                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white mb-2">
                         <CountUp end={num} suffix={suffix} duration={2500} />
                      </h3>
-                     <p className="text-pink-200 text-xs md:text-sm font-bold uppercase tracking-[0.15em]">{stat.label}</p>
+                     <p className="text-pink-200 text-[10px] md:text-sm font-bold uppercase tracking-[0.15em]">{stat.label}</p>
                   </div>
                  );
               })}
