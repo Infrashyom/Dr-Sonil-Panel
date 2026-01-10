@@ -5,7 +5,7 @@ import { storage } from '../../utils/storage';
 import { getYoutubeThumbnail } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star } from 'lucide-react';
+import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, CheckCircle2 } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 
 export const GalleryManager = () => {
@@ -25,6 +25,12 @@ export const GalleryManager = () => {
   const [newHeroSlide, setNewHeroSlide] = useState({ url: '', title: '', subtitle: '' });
   const [loading, setLoading] = useState(false);
 
+  // Computed Counts
+  const featuredImageCount = galleryItems.filter(i => i.type === 'image' && i.featured).length;
+  const featuredVideoCount = galleryItems.filter(i => i.type === 'video' && i.featured).length;
+  const IMAGE_LIMIT = 6;
+  const VIDEO_LIMIT = 3;
+
   useEffect(() => {
     refreshData();
   }, []);
@@ -34,17 +40,19 @@ export const GalleryManager = () => {
     setHeroSlides(await storage.getHeroSlides());
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: Function) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: Function, isHero = false) => {
     const file = e.target.files?.[0];
     if (file) {
       setLoading(true);
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
-          // Compress image before setting state
-          const compressed = await compressImage(reader.result as string);
+          // Compress image before setting state. 
+          // If hero, use 1920 width, otherwise 1200. High quality for both.
+          const width = isHero ? 1920 : 1600;
+          const compressed = await compressImage(reader.result as string, width, 0.95);
           setter((prev: any) => ({ ...prev, url: compressed }));
-          showToast('Image processed ready for upload', 'info');
+          showToast('Image processed (High Quality)', 'info');
         } catch (error) {
           console.error("Compression failed, using original", error);
           setter((prev: any) => ({ ...prev, url: reader.result as string }));
@@ -79,9 +87,24 @@ export const GalleryManager = () => {
 
   const toggleFeatured = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    const item = galleryItems.find(i => i.id === id);
+    if (!item) return;
+
+    // Check limits before adding feature
+    if (!item.featured) {
+        if (item.type === 'image' && featuredImageCount >= IMAGE_LIMIT) {
+            showToast(`Home Page Limit Reached (${IMAGE_LIMIT}). Unstar an image to add this one.`, 'error');
+            return;
+        }
+        if (item.type === 'video' && featuredVideoCount >= VIDEO_LIMIT) {
+            showToast(`Home Page Limit Reached (${VIDEO_LIMIT}). Unstar a video to add this one.`, 'error');
+            return;
+        }
+    }
+
     await storage.toggleGalleryFeature(id);
     await refreshData();
-    showToast('Featured status updated', 'info');
+    showToast(item.featured ? 'Removed from Home Page' : 'Added to Home Page', 'info');
   };
 
   const addHeroSlide = async (e: React.FormEvent) => {
@@ -124,18 +147,37 @@ export const GalleryManager = () => {
 
       {activeTab === 'gallery' ? (
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
             <button onClick={() => setGalleryModal(true)} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
               <Plus size={18} /> Add Media
             </button>
-            <div className="hidden md:flex items-center gap-2 text-xs text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100">
-              <Info size={14} />
-              <span>Click Star to Feature on Home</span>
+            
+            {/* Status Counters */}
+            <div className="flex gap-4">
+               <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 text-xs font-bold ${featuredImageCount >= IMAGE_LIMIT ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                  <ImageIcon size={14} />
+                  <span>Home Images: {featuredImageCount}/{IMAGE_LIMIT}</span>
+                  {featuredImageCount >= IMAGE_LIMIT && (
+                    <span title="Limit reached. Unstar an image to add more.">
+                      <Info size={14} />
+                    </span>
+                  )}
+               </div>
+               <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 text-xs font-bold ${featuredVideoCount >= VIDEO_LIMIT ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                  <Video size={14} />
+                  <span>Home Videos: {featuredVideoCount}/{VIDEO_LIMIT}</span>
+                  {featuredVideoCount >= VIDEO_LIMIT && (
+                    <span title="Limit reached. Unstar a video to add more.">
+                      <Info size={14} />
+                    </span>
+                  )}
+               </div>
             </div>
           </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {galleryItems.map(item => (
-              <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-pink-100 shadow-sm bg-white">
+              <div key={item.id} className={`relative group rounded-2xl overflow-hidden border shadow-sm bg-white ${item.featured ? 'ring-2 ring-yellow-400 border-yellow-400' : 'border-pink-100'}`}>
                 <div className="aspect-[4/3] relative">
                    <img 
                      src={item.type === 'video' ? getYoutubeThumbnail(item.url) : item.url} 
@@ -149,13 +191,20 @@ export const GalleryManager = () => {
                         </div>
                      </div>
                    )}
+                   
+                   {/* Featured Badge Overlay */}
+                   {item.featured && (
+                       <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm z-10">
+                          <Star size={10} fill="currentColor" /> Featured
+                       </div>
+                   )}
                 </div>
                 
                 {/* Actions */}
-                <div className="absolute top-2 right-2 flex gap-2">
+                <div className="absolute top-2 right-2 flex gap-2 z-20">
                    <button 
                     onClick={(e) => toggleFeatured(item.id, e)} 
-                    className={`p-2 backdrop-blur rounded-full transition-all shadow-sm ${item.featured ? 'bg-yellow-100 text-yellow-500 hover:bg-yellow-200' : 'bg-white/90 text-gray-400 hover:text-yellow-400 opacity-0 group-hover:opacity-100'}`}
+                    className={`p-2 backdrop-blur rounded-full transition-all shadow-sm ${item.featured ? 'bg-yellow-100 text-yellow-600 hover:bg-white' : 'bg-black/50 text-white hover:bg-yellow-400 hover:text-yellow-900'}`}
                     title={item.featured ? "Remove from Home" : "Feature on Home"}
                    >
                      <Star size={16} fill={item.featured ? "currentColor" : "none"} />
@@ -287,14 +336,6 @@ export const GalleryManager = () => {
                  <option value="events">Events</option>
                  <option value="patients">Patients</option>
                </select>
-
-               {/* Add Featured Toggle in Creation Form */}
-               <div className="flex items-center gap-3 bg-pink-50 p-3 rounded-xl border border-pink-100 cursor-pointer" onClick={() => setNewGalleryItem({...newGalleryItem, featured: !newGalleryItem.featured})}>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${newGalleryItem.featured ? 'bg-pink-600 border-pink-600' : 'bg-white border-gray-300'}`}>
-                    {newGalleryItem.featured && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
-                  </div>
-                  <span className="text-sm font-bold text-gray-700">Feature on Home Page</span>
-               </div>
              </div>
 
              <div className="flex gap-4 mt-8">
@@ -318,7 +359,7 @@ export const GalleryManager = () => {
              
              <div className="mb-6">
                 <label className="block w-full cursor-pointer group">
-                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewHeroSlide)} />
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewHeroSlide, true)} />
                   <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${newHeroSlide.url ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
                     {newHeroSlide.url ? (
                       <img src={newHeroSlide.url} className="w-full h-48 object-cover rounded-lg shadow-sm" alt="Preview" />

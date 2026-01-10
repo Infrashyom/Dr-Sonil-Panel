@@ -3,7 +3,7 @@
  * Compresses an image string (base64) by resizing it and reducing quality
  * Used for Client-side compression before upload
  */
-export const compressImage = (base64Str: string, maxWidth = 1200, quality = 0.7): Promise<string> => {
+export const compressImage = (base64Str: string, maxWidth = 2560, quality = 0.98): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.src = base64Str;
@@ -12,7 +12,7 @@ export const compressImage = (base64Str: string, maxWidth = 1200, quality = 0.7)
       let width = img.width;
       let height = img.height;
 
-      // Calculate new dimensions
+      // Calculate new dimensions only if larger than maxWidth
       if (width > maxWidth) {
         height = Math.round((height * maxWidth) / width);
         width = maxWidth;
@@ -27,9 +27,12 @@ export const compressImage = (base64Str: string, maxWidth = 1200, quality = 0.7)
         return;
       }
 
+      // Use best interpolation
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, width, height);
       
-      // Convert to compressed JPEG
+      // Convert to compressed JPEG with high quality
       const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
       resolve(compressedBase64);
     };
@@ -51,9 +54,8 @@ export const getOptimizedUrl = (url: string, width?: number): string => {
 
   // Construct transformation string
   // f_auto: Let Cloudinary choose best format (webp/avif)
-  // q_auto: Intelligent quality compression
-  // w_{width}: Resize to specific width if provided
-  let transformation = 'f_auto,q_auto';
+  // q_auto:best : Use high quality
+  let transformation = 'f_auto,q_auto:best';
   
   if (width) {
     transformation += `,w_${width}`;

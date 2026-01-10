@@ -7,7 +7,7 @@ import { MapSection } from '../components/MapSection';
 import { ReasonsSection } from '../components/ReasonsSection';
 import { ReviewsSection } from '../components/ReviewsSection';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X } from 'lucide-react';
+import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play } from 'lucide-react';
 import { storage } from '../utils/storage';
 import { GalleryItem, SiteConfig, Service, FAQ } from '../types';
 import { getYoutubeThumbnail, getYoutubeEmbedUrl } from '../utils/youtube';
@@ -99,16 +99,15 @@ export const Home = () => {
 
         // Gallery
         const items = await storage.getGallery();
-        setGalleryPreview(items.filter(item => item.type !== 'video').slice(0, 6));
         
-        const allVideos = items.filter(item => item.type === 'video');
-        const featuredVideos = allVideos.filter(item => item.featured);
+        // Only show FEATURED (starred) images on home, max 6
+        const featuredImages = items.filter(item => item.type === 'image' && item.featured);
+        setGalleryPreview(featuredImages.slice(0, 6));
         
-        if (featuredVideos.length > 0) {
-          setVideoPreview(featuredVideos.slice(0, 3));
-        } else if (allVideos.length > 0) {
-          setVideoPreview(allVideos.slice(0, 3));
-        }
+        // Featured videos: Show ONLY starred ones, max 3
+        const featuredVideos = items.filter(item => item.type === 'video' && item.featured);
+        setVideoPreview(featuredVideos.slice(0, 3));
+        
       } catch (error) {
         console.error("Failed to load secondary home data", error);
       }
@@ -264,7 +263,7 @@ export const Home = () => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {services.slice(0, 6).map((service, idx) => (
+            {services.slice(0, 8).map((service, idx) => (
               <FadeInUp key={idx} delay={idx * 50}>
                 <ServiceCard service={service} index={idx} />
               </FadeInUp>
@@ -275,44 +274,81 @@ export const Home = () => {
 
       <ReviewsSection />
 
-      {/* Video Gallery */}
+      {/* Revamped Video Gallery */}
       {videoPreview.length > 0 && (
-        <section className="py-24 bg-[#590d22] text-white overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-              <div className="absolute -top-24 -left-24 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-              <div className="absolute top-1/2 right-0 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-          </div>
+        <section className="py-24 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+          
           <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-               <div>
-                 <span className="text-pink-300 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Watch Us</span>
-                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-white">Video Gallery</h2>
-               </div>
-               <Link to="/gallery" className="inline-flex items-center text-pink-200 hover:text-white transition-colors border-b border-pink-500/30 pb-1">
+               <FadeInUp>
+                 <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Watch Us</span>
+                 <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#590d22]">Patient Success Stories</h2>
+               </FadeInUp>
+               <Link to="/gallery" className="inline-flex items-center text-pink-700 hover:text-pink-900 transition-colors border-b border-pink-200 hover:border-pink-600 pb-1 font-bold">
                  View All Videos <ArrowRight size={16} className="ml-2" />
                </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               {videoPreview.map((item, idx) => (
-                 <div key={idx} className="group relative rounded-2xl overflow-hidden aspect-video bg-gray-900 cursor-pointer shadow-2xl border border-white/10" onClick={() => setPlayingVideo(item)}>
-                    <img src={getYoutubeThumbnail(item.url)} alt={item.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-500 group-hover:scale-105 transform" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                          <PlayCircle className="text-white fill-white/20" size={32} />
-                       </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto lg:h-[500px]">
+               {/* Main Featured Video (First Item) */}
+               <div 
+                 className="lg:col-span-8 h-full rounded-3xl overflow-hidden shadow-2xl relative cursor-pointer group"
+                 onClick={() => setPlayingVideo(videoPreview[0])}
+               >
+                  <img src={getYoutubeThumbnail(videoPreview[0].url)} alt={videoPreview[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-300 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform duration-300">
+                          <Play className="text-white fill-white ml-1" size={32} />
+                      </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                      <span className="bg-pink-600 text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full mb-3 inline-block">Featured Story</span>
+                      <h3 className="text-2xl md:text-3xl font-serif font-bold text-white leading-tight">{videoPreview[0].title}</h3>
+                  </div>
+               </div>
+
+               {/* Side List (Next 2 Items) */}
+               <div className="lg:col-span-4 flex flex-col gap-6 h-full">
+                  {videoPreview.slice(1).map((item, idx) => (
+                    <div 
+                      key={idx} 
+                      className="flex-1 rounded-2xl overflow-hidden shadow-lg relative cursor-pointer group border border-pink-100"
+                      onClick={() => setPlayingVideo(item)}
+                    >
+                        <img src={getYoutubeThumbnail(item.url)} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        
+                        {/* Play Icon Center */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors">
+                           <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
+                             <Play className="text-white fill-white ml-0.5" size={20} />
+                           </div>
+                        </div>
+
+                        {/* Text Overlay */}
+                        <div className="absolute bottom-0 left-0 w-full p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                           <span className="text-[10px] text-pink-200 font-bold uppercase tracking-wider mb-1 block">Watch Now</span>
+                           <h4 className="font-serif font-bold text-white text-base leading-snug line-clamp-2">{item.title}</h4>
+                        </div>
                     </div>
-                    <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/90 to-transparent">
-                       <h3 className="text-white font-bold font-serif text-lg line-clamp-1">{item.title}</h3>
-                    </div>
-                 </div>
-               ))}
+                  ))}
+                  {/* Fallback if less than 3 videos */}
+                  {videoPreview.length < 3 && (
+                     <div className="flex-1 rounded-2xl bg-pink-50 border border-pink-100 border-dashed flex items-center justify-center flex-col text-center p-6">
+                        <PlayCircle className="text-pink-300 mb-2" size={32} />
+                        <p className="text-pink-800 font-bold text-sm">More stories coming soon...</p>
+                     </div>
+                  )}
+               </div>
             </div>
           </div>
         </section>
       )}
 
       {/* Image Gallery */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-white">
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
            <div className="text-center mb-16">
               <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Gallery</span>
@@ -336,7 +372,7 @@ export const Home = () => {
                 ))}
              </div>
            ) : (
-             <div className="text-center text-gray-400 py-10 italic">No images available</div>
+             <div className="text-center text-gray-400 py-10 italic">No featured images available. Star images in Admin Gallery to show them here.</div>
            )}
            <div className="text-center mt-12">
               <Link to="/gallery" className="inline-block border-2 border-[#590d22] text-[#590d22] px-10 py-3 rounded-full font-bold uppercase text-sm hover:bg-[#590d22] hover:text-white transition-all">View Full Gallery</Link>

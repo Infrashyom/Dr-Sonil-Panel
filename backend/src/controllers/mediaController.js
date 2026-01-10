@@ -2,6 +2,23 @@
 import { Gallery, Hero } from '../models/Media.js';
 import cloudinary from '../config/cloudinary.js';
 
+// --- GENERIC UPLOAD ---
+export const uploadMedia = async (req, res) => {
+  try {
+    const { image, folder } = req.body;
+    if (!image) return res.status(400).json({ message: 'No image provided' });
+
+    const uploadRes = await cloudinary.uploader.upload(image, {
+      folder: folder || 'dr_sonil/uploads',
+    });
+
+    res.json({ url: uploadRes.secure_url, public_id: uploadRes.public_id });
+  } catch (error) {
+    console.error("Upload Error:", error);
+    res.status(500).json({ message: 'Upload failed' });
+  }
+};
+
 // --- GALLERY ---
 
 export const getGallery = async (req, res) => {

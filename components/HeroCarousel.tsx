@@ -59,7 +59,7 @@ export const HeroCarousel = () => {
 
   return (
     <div 
-      className="relative h-[85vh] md:h-[calc(100vh-65px)] w-full overflow-hidden mt-[60px] md:mt-[65px] group bg-gray-900"
+      className="relative h-[60vh] sm:h-[70vh] md:h-[calc(100vh-65px)] w-full overflow-hidden mt-[60px] md:mt-[65px] group bg-gray-900"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -84,7 +84,7 @@ export const HeroCarousel = () => {
             </div>
 
             {/* Responsive Gradient Overlay: Vertical on Mobile, Horizontal on Desktop */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent md:bg-gradient-to-r md:from-black/90 md:via-black/60 md:via-40% md:to-transparent flex flex-col justify-end md:justify-center pb-20 md:pb-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/90 md:via-black/60 md:via-40% md:to-transparent flex flex-col justify-end md:justify-center pb-16 md:pb-0">
               <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 w-full">
                 <div className={`max-w-full md:max-w-2xl transition-all duration-1000 delay-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                   

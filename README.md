@@ -1,3 +1,4 @@
+
 # Dr. Sonil Women's Care Centre - MERN Stack Project
 
 This project is a premium healthcare website with a fully functional Admin Portal, built using the **MERN** stack (MongoDB, Express, React, Node.js) and **Cloudinary** for image storage.
@@ -92,6 +93,10 @@ You can control exactly which videos appear on the Home Page "Video Gallery" sec
     *   **Grey Star**: The video is only visible in the full Gallery page.
 3.  *Note*: If NO videos are starred, the system will automatically display the 3 most recently uploaded videos.
 
+### 🌟 Managing Home Page Images (Life at the Centre)
+*   You can star (feature) up to **6 images** in the Gallery Manager.
+*   Only these 6 starred images will appear on the Home Page grid.
+
 ### 📏 Image Dimensions Guide
 
 For the best visual experience, please use the following dimensions when uploading images via the Admin Portal:
@@ -105,6 +110,10 @@ For the best visual experience, please use the following dimensions when uploadi
     *   **Dimension**: `1200 x 900` pixels
     *   **Aspect Ratio**: 4:3
     *   *Tip*: Consistent sizing ensures the grid looks neat.
+
+3.  **Blog Posts**:
+    *   **Cover Image**: `1600 x 900` pixels (16:9 Aspect Ratio)
+    *   **Inline Images**: Width should be at least `800px` for good readability.
 
 ---
 

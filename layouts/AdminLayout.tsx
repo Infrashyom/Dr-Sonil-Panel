@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Image as ImageIcon, Settings, LogOut, Menu, X, Heart, Globe, FileText } from 'lucide-react';
+import { LayoutDashboard, Calendar, Image as ImageIcon, Settings, LogOut, Menu, X, Heart, Globe, FileText, BookOpen } from 'lucide-react';
 import { storage } from '../utils/storage';
 
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -18,6 +18,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
     { icon: Calendar, label: 'Appointments', path: '/admin/appointments' },
     { icon: FileText, label: 'Manage Content', path: '/admin/content' },
+    { icon: BookOpen, label: 'Manage Blogs', path: '/admin/blogs' },
     { icon: ImageIcon, label: 'Gallery', path: '/admin/gallery' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];

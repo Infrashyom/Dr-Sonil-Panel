@@ -8,6 +8,8 @@ import { Services } from './pages/Services';
 import { Contact } from './pages/Contact';
 import { Gallery } from './pages/Gallery';
 import { DoctorCard } from './components/DoctorCard';
+import { Blogs } from './pages/Blogs';
+import { BlogPost } from './pages/BlogPost';
 import { FadeInUp } from './components/Animations';
 import { storage } from './utils/storage';
 import { NotFound } from './pages/NotFound';
@@ -21,6 +23,7 @@ import { Appointments } from './pages/admin/Appointments';
 import { GalleryManager } from './pages/admin/GalleryManager';
 import { Settings } from './pages/admin/Settings';
 import { ContentManager } from './pages/admin/ContentManager';
+import { BlogManager } from './pages/admin/BlogManager';
 
 // Scroll to top component
 const ScrollToTop = () => {
@@ -90,6 +93,7 @@ function App() {
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="gallery" element={<GalleryManager />} />
                 <Route path="content" element={<ContentManager />} />
+                <Route path="blogs" element={<BlogManager />} />
                 <Route path="settings" element={<Settings />} />
                 {/* Default redirect to dashboard */}
                 <Route path="" element={<Navigate to="dashboard" replace />} />
@@ -108,6 +112,8 @@ function App() {
                 <Route path="services" element={<Services />} />
                 <Route path="doctors" element={<DoctorsPage />} />
                 <Route path="gallery" element={<Gallery />} />
+                <Route path="blogs" element={<Blogs />} />
+                <Route path="blogs/:id" element={<BlogPost />} />
                 <Route path="contact" element={<Contact />} />
                 {/* 404 Page Not Found */}
                 <Route path="*" element={<NotFound />} />

@@ -64,6 +64,17 @@ export interface HeroSlide {
   subtitle: string;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  content: string;
+  image: string;
+  author: string;
+  createdAt: string;
+}
+
 export interface SiteConfig {
   name?: string;
   doctorName?: string;

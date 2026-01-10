@@ -4,8 +4,12 @@ import * as appointmentController from '../controllers/appointmentController.js'
 import * as mediaController from '../controllers/mediaController.js';
 import * as configController from '../controllers/configController.js';
 import * as contentController from '../controllers/contentController.js';
+import * as blogController from '../controllers/blogController.js';
 
 const router = express.Router();
+
+// Generic Upload
+router.post('/upload', mediaController.uploadMedia);
 
 // Appointments
 router.route('/appointments')
@@ -50,5 +54,15 @@ router.route('/content')
 router.route('/content/:id')
   .put(contentController.updateContent)
   .delete(contentController.deleteContent);
+
+// Blogs
+router.route('/blogs')
+  .get(blogController.getBlogs)
+  .post(blogController.createBlog);
+
+router.route('/blogs/:id')
+  .get(blogController.getBlogById)
+  .put(blogController.updateBlog)
+  .delete(blogController.deleteBlog);
 
 export default router;

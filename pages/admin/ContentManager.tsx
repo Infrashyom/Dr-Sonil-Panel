@@ -25,6 +25,7 @@ export const ContentManager = () => {
 
   // Delete Confirmation State
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState<any>({});
@@ -88,13 +89,15 @@ export const ContentManager = () => {
 
   const confirmDelete = async () => {
     if (deleteId) {
+        setDeleting(true);
         try {
             await storage.deleteContent(deleteId);
             showToast('Item deleted', 'success');
-            refreshData();
+            await refreshData();
         } catch (error) {
             showToast('Failed to delete item', 'error');
         } finally {
+            setDeleting(false);
             setDeleteId(null);
         }
     }
@@ -106,7 +109,7 @@ export const ContentManager = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
-           const compressed = await compressImage(reader.result as string);
+           const compressed = await compressImage(reader.result as string, 2560, 0.98); // High quality for team photos
            setFormData((prev: any) => ({ ...prev, image: compressed }));
            showToast('Image processed', 'info');
         } catch (err) {
@@ -286,7 +289,9 @@ export const ContentManager = () => {
                 <p className="text-gray-500 mb-8 text-sm">This action cannot be undone.</p>
                 <div className="flex gap-3">
                   <button onClick={() => setDeleteId(null)} className="flex-1 py-3 bg-gray-50 font-bold rounded-xl text-gray-600 hover:bg-gray-100">Cancel</button>
-                  <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 font-bold text-white rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20">Delete</button>
+                  <button onClick={confirmDelete} disabled={deleting} className="flex-1 py-3 bg-red-500 font-bold text-white rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 flex items-center justify-center gap-2">
+                     {deleting ? <Loader2 className="animate-spin" size={18} /> : 'Delete'}
+                  </button>
                 </div>
            </div>
         </div>

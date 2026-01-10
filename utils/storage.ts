@@ -1,5 +1,5 @@
 
-import { Appointment, GalleryItem, SiteConfig, HeroSlide, ContentItem } from '../types';
+import { Appointment, GalleryItem, SiteConfig, HeroSlide, ContentItem, BlogPost } from '../types';
 
 // CHANGED: Use relative path. 
 // In Dev: Vite proxies '/api' -> 'http://localhost:5000/api'
@@ -34,6 +34,22 @@ const mapList = (list: any[]) => {
 };
 
 export const storage = {
+  // --- UPLOAD ---
+  uploadMedia: async (base64Image: string): Promise<string> => {
+     try {
+        const res = await fetch(`${API_URL}/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64Image, folder: 'dr_sonil/blogs_inline' })
+        });
+        const data = await res.json();
+        return data.url;
+     } catch (err) {
+        console.error("Upload failed", err);
+        throw new Error("Failed to upload image");
+     }
+  },
+
   // --- APPOINTMENTS ---
   getAppointments: async (): Promise<Appointment[]> => {
     try {
@@ -69,6 +85,52 @@ export const storage = {
         throw new Error(`Failed to update status: ${res.status} ${errorText}`);
     }
     return mapId(await res.json());
+  },
+
+  // --- BLOGS ---
+  getBlogs: async (): Promise<BlogPost[]> => {
+    try {
+      const res = await fetch(`${API_URL}/blogs`, { cache: 'no-store' });
+      const data = await res.json();
+      return mapList(data);
+    } catch (err) {
+      return [];
+    }
+  },
+
+  getBlogById: async (id: string): Promise<BlogPost | null> => {
+    try {
+      const res = await fetch(`${API_URL}/blogs/${id}`, { cache: 'no-store' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return mapId(data);
+    } catch (err) {
+      return null;
+    }
+  },
+
+  addBlog: async (blog: Omit<BlogPost, 'id' | 'createdAt' | 'slug'>) => {
+    const res = await fetch(`${API_URL}/blogs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(blog),
+    });
+    if (!res.ok) throw new Error('Failed to add blog');
+    return mapId(await res.json());
+  },
+
+  updateBlog: async (id: string, blog: Partial<BlogPost>) => {
+    const res = await fetch(`${API_URL}/blogs/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(blog),
+    });
+    if (!res.ok) throw new Error('Failed to update blog');
+    return mapId(await res.json());
+  },
+
+  deleteBlog: async (id: string) => {
+    await fetch(`${API_URL}/blogs/${id}`, { method: 'DELETE' });
   },
 
   // --- GALLERY ---

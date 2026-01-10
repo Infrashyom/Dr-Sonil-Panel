@@ -37,6 +37,7 @@ const Navbar = () => {
     { name: 'Services', path: '/services' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Doctors', path: '/doctors' },
+    { name: 'Blogs', path: '/blogs' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -214,6 +215,7 @@ const Footer = () => {
                 <li><Link to="/about" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">About Us</Link></li>
                 <li><Link to="/services" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Our Services</Link></li>
                 <li><Link to="/doctors" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Medical Team</Link></li>
+                <li><Link to="/blogs" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Health Blog</Link></li>
                 <li><Link to="/contact" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Book Appointment</Link></li>
             </ul>
           </div>
