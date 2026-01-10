@@ -55,12 +55,16 @@ const Navbar = () => {
             
             {/* LEFT: Logo & Branding */}
             <Link to="/" className="flex items-center gap-3 group relative z-50 shrink-0">
-              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-pink-700 p-1 flex items-center justify-center bg-white shrink-0 transition-transform group-hover:scale-105">
-                  <div className="flex flex-col items-center justify-center leading-none text-pink-700">
-                    <span className="text-[7px] font-bold uppercase">IVF</span>
-                    <Heart size={14} fill="currentColor" className="my-0.5"/>
-                    <span className="text-[5px] font-bold uppercase">Center</span>
-                  </div>
+              <div className="w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-pink-700 p-1 flex items-center justify-center bg-white shrink-0 transition-transform group-hover:scale-105 overflow-hidden">
+                  {config?.logo ? (
+                     <img src={config.logo} alt="Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center leading-none text-pink-700">
+                      <span className="text-[7px] font-bold uppercase">IVF</span>
+                      <Heart size={14} fill="currentColor" className="my-0.5"/>
+                      <span className="text-[5px] font-bold uppercase">Center</span>
+                    </div>
+                  )}
               </div>
               <div className="flex flex-col justify-center">
                 <h1 className="font-serif font-bold text-lg md:text-xl text-[#590d22] leading-none tracking-tight group-hover:text-pink-700 transition-colors uppercase">

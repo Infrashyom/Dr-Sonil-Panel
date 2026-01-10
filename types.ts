@@ -52,7 +52,7 @@ export interface GalleryItem {
   id: string;
   url: string;
   title: string;
-  category: 'clinic' | 'events' | 'patients';
+  category: 'clinic' | 'events' | 'patients' | 'surgery';
   type: 'image' | 'video';
   featured?: boolean;
 }
@@ -92,6 +92,7 @@ export interface SiteConfig {
   googleMapLink?: string;
   announcement?: string;
   googlePlaceId?: string;
+  logo?: string;
   doctorImage?: string;
   reasonsImage?: string;
   aboutVideo?: string;

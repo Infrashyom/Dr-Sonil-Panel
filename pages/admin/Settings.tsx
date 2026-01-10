@@ -23,6 +23,7 @@ export const Settings = () => {
     announcement: '',
     googlePlaceId: '',
     googleMapLink: '',
+    logo: '',
     doctorImage: '',
     reasonsImage: '',
     aboutVideo: '',
@@ -88,15 +89,15 @@ export const Settings = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'doctorImage' | 'reasonsImage') => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'doctorImage' | 'reasonsImage' | 'logo') => {
       const file = e.target.files?.[0];
       if (file) {
           setUploading(true);
           const reader = new FileReader();
           reader.onloadend = async () => {
               try {
-                // Compress before upload
-                const compressed = await compressImage(reader.result as string);
+                // Compress before upload. Logo needs less compression usually but consistent logic helps.
+                const compressed = await compressImage(reader.result as string, field === 'logo' ? 500 : 1200);
                 setConfig(prev => ({ ...prev, [field]: compressed }));
                 showToast('Image processed. Click Save to apply.', 'info');
               } catch (err) {
@@ -250,6 +251,30 @@ export const Settings = () => {
              <div className="pt-4 border-t border-pink-50">
                  <h4 className="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><ImageIcon size={16} className="text-pink-600"/> Site Media</h4>
                  
+                 {/* Clinic Logo */}
+                 <div className="mb-6">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2 block">Clinic Logo</label>
+                    <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shrink-0 flex items-center justify-center">
+                            {config.logo ? (
+                                <img src={config.logo} alt="Logo" className="w-full h-full object-contain p-2" />
+                            ) : (
+                                <div className="text-gray-400 text-[10px] text-center">No Logo</div>
+                            )}
+                        </div>
+                        {isEditing && (
+                            <div className="flex-1">
+                                 <label className="cursor-pointer bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold py-2 px-4 rounded-lg text-sm inline-flex items-center gap-2 transition-colors">
+                                    {uploading ? <Loader2 className="animate-spin" size={16}/> : <ImageIcon size={16}/>}
+                                    {uploading ? 'Processing...' : 'Upload Logo'}
+                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, 'logo')} disabled={uploading} />
+                                 </label>
+                                 <p className="text-[10px] text-gray-400 mt-1">Recommended: Square PNG with transparent background</p>
+                            </div>
+                        )}
+                    </div>
+                 </div>
+
                  {/* Doctor Image */}
                  <div className="mb-6">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2 block">Home Section - Expert Image</label>

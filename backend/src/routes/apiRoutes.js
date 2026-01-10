@@ -36,6 +36,7 @@ router.route('/hero')
   .post(mediaController.addHeroSlide);
 
 router.route('/hero/:id')
+  .put(mediaController.updateHeroSlide)
   .delete(mediaController.deleteHeroSlide);
 
 // Config

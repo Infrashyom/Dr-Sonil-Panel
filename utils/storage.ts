@@ -182,6 +182,14 @@ export const storage = {
     });
   },
 
+  updateHeroSlide: async (id: string, item: Partial<HeroSlide>) => {
+    await fetch(`${API_URL}/hero/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+  },
+
   deleteHeroSlide: async (id: string) => {
     await fetch(`${API_URL}/hero/${id}`, { method: 'DELETE' });
   },

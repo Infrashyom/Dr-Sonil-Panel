@@ -26,6 +26,18 @@ export const updateConfig = async (req, res) => {
     const config = await Config.findOne({ key: 'main' });
 
     if (config) {
+      // Handle Logo Upload
+      if (updates.logo && updates.logo.startsWith('data:image')) {
+          try {
+             const uploadRes = await cloudinary.uploader.upload(updates.logo, {
+               folder: 'dr_sonil/config',
+             });
+             updates.logo = uploadRes.secure_url;
+          } catch(err) {
+              console.error("Logo Upload Error", err);
+          }
+      }
+
       // Handle Doctor Image Upload
       if (updates.doctorImage && updates.doctorImage.startsWith('data:image')) {
           try {

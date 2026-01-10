@@ -100,9 +100,9 @@ export const Home = () => {
         // Gallery
         const items = await storage.getGallery();
         
-        // Only show FEATURED (starred) images on home, max 6
+        // Only show FEATURED (starred) images on home, max 7 to fill the grid
         const featuredImages = items.filter(item => item.type === 'image' && item.featured);
-        setGalleryPreview(featuredImages.slice(0, 6));
+        setGalleryPreview(featuredImages.slice(0, 7));
         
         // Featured videos: Show ONLY starred ones, max 3
         const featuredVideos = items.filter(item => item.type === 'video' && item.featured);
@@ -119,11 +119,14 @@ export const Home = () => {
   const leftColFaqs = faqs.slice(0, midIndex);
   const rightColFaqs = faqs.slice(midIndex);
 
+  // New 7-item layout logic
   const getBentoClass = (index: number) => {
     switch(index) {
-      case 3: return "md:col-span-1 md:row-span-2";
-      case 4: return "md:col-span-1 md:row-span-2";
-      case 5: return "md:col-span-2 md:row-span-2";
+      case 0: return "md:col-span-2 md:row-span-2"; // Big Feature (Top Left)
+      case 1: return "md:col-span-1 md:row-span-1";
+      case 2: return "md:col-span-1 md:row-span-2"; // Tall Portrait (Right)
+      case 3: return "md:col-span-1 md:row-span-1";
+      case 6: return "md:col-span-2 md:row-span-1"; // Wide Landscape (Bottom Right)
       default: return "md:col-span-1 md:row-span-1";
     }
   };
@@ -287,9 +290,15 @@ export const Home = () => {
                  <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Watch Us</span>
                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#590d22]">Patient Success Stories</h2>
                </FadeInUp>
-               <Link to="/gallery" className="inline-flex items-center text-pink-700 hover:text-pink-900 transition-colors border-b border-pink-200 hover:border-pink-600 pb-1 font-bold">
+               {/* UPDATED: Link to YouTube Channel */}
+               <a 
+                 href={config?.socials?.youtube || '#'} 
+                 target="_blank"
+                 rel="noreferrer"
+                 className="inline-flex items-center text-pink-700 hover:text-pink-900 transition-colors border-b border-pink-200 hover:border-pink-600 pb-1 font-bold"
+               >
                  View All Videos <ArrowRight size={16} className="ml-2" />
-               </Link>
+               </a>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto lg:h-[500px]">

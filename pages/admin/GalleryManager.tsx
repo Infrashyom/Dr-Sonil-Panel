@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
 import { getYoutubeThumbnail } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, Edit2 } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 
 export const GalleryManager = () => {
@@ -17,18 +16,19 @@ export const GalleryManager = () => {
   
   // Gallery Form State
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  const [newGalleryItem, setNewGalleryItem] = useState<{ url: string; title: string; category: 'clinic' | 'events' | 'patients', featured: boolean }>({ url: '', title: '', category: 'clinic', featured: false });
+  const [newGalleryItem, setNewGalleryItem] = useState<{ url: string; title: string; category: 'clinic' | 'events' | 'patients' | 'surgery', featured: boolean }>({ url: '', title: '', category: 'clinic', featured: false });
   
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [heroModal, setHeroModal] = useState(false);
   const [heroDeleteId, setHeroDeleteId] = useState<string | null>(null);
+  const [heroEditingId, setHeroEditingId] = useState<string | null>(null); // Track edit mode
   const [newHeroSlide, setNewHeroSlide] = useState({ url: '', title: '', subtitle: '' });
   const [loading, setLoading] = useState(false);
 
   // Computed Counts
   const featuredImageCount = galleryItems.filter(i => i.type === 'image' && i.featured).length;
   const featuredVideoCount = galleryItems.filter(i => i.type === 'video' && i.featured).length;
-  const IMAGE_LIMIT = 6;
+  const IMAGE_LIMIT = 7; // Updated limit based on new layout
   const VIDEO_LIMIT = 3;
 
   useEffect(() => {
@@ -107,16 +107,47 @@ export const GalleryManager = () => {
     showToast(item.featured ? 'Removed from Home Page' : 'Added to Home Page', 'info');
   };
 
-  const addHeroSlide = async (e: React.FormEvent) => {
+  // --- HERO SLIDE HANDLERS ---
+  const handleOpenHeroModal = (slide?: HeroSlide) => {
+     if (slide) {
+        setHeroEditingId(slide.id);
+        setNewHeroSlide({ url: slide.image, title: slide.title, subtitle: slide.subtitle });
+     } else {
+        setHeroEditingId(null);
+        setNewHeroSlide({ url: '', title: '', subtitle: '' });
+     }
+     setHeroModal(true);
+  };
+
+  const saveHeroSlide = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newHeroSlide.url) return;
+    // For edit, URL might not change, but must be present
+    if (!newHeroSlide.url && !heroEditingId) return; 
+    
     setLoading(true);
-    await storage.addHeroSlide({ image: newHeroSlide.url, title: newHeroSlide.title, subtitle: newHeroSlide.subtitle });
+    if (heroEditingId) {
+        // Edit Mode
+        await storage.updateHeroSlide(heroEditingId, { 
+            image: newHeroSlide.url, 
+            title: newHeroSlide.title, 
+            subtitle: newHeroSlide.subtitle 
+        });
+        showToast('Banner updated successfully', 'success');
+    } else {
+        // Create Mode
+        await storage.addHeroSlide({ 
+            image: newHeroSlide.url, 
+            title: newHeroSlide.title, 
+            subtitle: newHeroSlide.subtitle 
+        });
+        showToast('Banner added successfully', 'success');
+    }
+    
     await refreshData();
     setNewHeroSlide({ url: '', title: '', subtitle: '' });
+    setHeroEditingId(null);
     setLoading(false);
     setHeroModal(false);
-    showToast('Banner added successfully', 'success');
   };
 
   const deleteHeroSlide = async () => {
@@ -228,7 +259,7 @@ export const GalleryManager = () => {
       ) : (
         <div>
            <div className="flex items-center justify-between mb-6">
-            <button onClick={() => setHeroModal(true)} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
+            <button onClick={() => handleOpenHeroModal()} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
               <Plus size={18} /> Add Banner
             </button>
             <div className="hidden md:flex items-center gap-2 text-xs text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100">
@@ -244,7 +275,10 @@ export const GalleryManager = () => {
                   <h4 className="font-bold text-pink-900">{slide.title}</h4>
                   <p className="text-xs text-gray-500">{slide.subtitle}</p>
                 </div>
-                <button onClick={() => setHeroDeleteId(slide.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={20} /></button>
+                <div className="flex gap-2">
+                   <button onClick={() => handleOpenHeroModal(slide)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={20} /></button>
+                   <button onClick={() => setHeroDeleteId(slide.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={20} /></button>
+                </div>
               </div>
             ))}
           </div>
@@ -333,6 +367,7 @@ export const GalleryManager = () => {
                  className="w-full bg-pink-50/30 border border-pink-100 text-pink-900 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all appearance-none"
                >
                  <option value="clinic">Clinic</option>
+                 <option value="surgery">Surgery</option>
                  <option value="events">Events</option>
                  <option value="patients">Patients</option>
                </select>
@@ -351,9 +386,9 @@ export const GalleryManager = () => {
       {/* Hero Modal */}
       {heroModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-900/20 backdrop-blur-sm">
-          <form onSubmit={addHeroSlide} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
+          <form onSubmit={saveHeroSlide} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
              <div className="flex justify-between items-center mb-6">
-               <h3 className="text-xl font-serif font-bold text-pink-900">Add Home Banner</h3>
+               <h3 className="text-xl font-serif font-bold text-pink-900">{heroEditingId ? 'Edit Banner' : 'Add Home Banner'}</h3>
                <button type="button" onClick={() => setHeroModal(false)} className="text-gray-400 hover:text-pink-600"><X size={24} /></button>
              </div>
              
@@ -398,7 +433,7 @@ export const GalleryManager = () => {
              <div className="flex gap-4 mt-8">
                <button type="button" onClick={() => setHeroModal(false)} className="flex-1 bg-pink-50 text-pink-700 font-bold py-3 rounded-xl hover:bg-pink-100 transition-colors">Cancel</button>
                <button type="submit" disabled={loading} className="flex-1 bg-pink-900 text-white font-bold py-3 rounded-xl hover:bg-pink-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20">
-                 {loading ? <Loader2 className="animate-spin" size={18}/> : 'Save Banner'}
+                 {loading ? <Loader2 className="animate-spin" size={18}/> : (heroEditingId ? 'Update Banner' : 'Save Banner')}
                </button>
              </div>
           </form>

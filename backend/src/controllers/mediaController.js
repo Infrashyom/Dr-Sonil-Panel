@@ -131,6 +131,39 @@ export const addHeroSlide = async (req, res) => {
   }
 };
 
+export const updateHeroSlide = async (req, res) => {
+  try {
+    const { image, title, subtitle } = req.body;
+    const slide = await Hero.findById(req.params.id);
+    
+    if (!slide) return res.status(404).json({ message: 'Slide not found' });
+
+    // Handle Image Update
+    if (image && image !== slide.image && image.startsWith('data:image')) {
+       // Delete old image from Cloudinary
+       if (slide.public_id) {
+         await cloudinary.uploader.destroy(slide.public_id);
+       }
+       
+       // Upload new
+       const uploadRes = await cloudinary.uploader.upload(image, {
+         folder: 'dr_sonil/hero',
+       });
+       slide.image = uploadRes.secure_url;
+       slide.public_id = uploadRes.public_id;
+    }
+
+    slide.title = title || slide.title;
+    slide.subtitle = subtitle || slide.subtitle;
+    
+    await slide.save();
+    res.json(slide);
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(400).json({ message: 'Update failed' });
+  }
+};
+
 export const deleteHeroSlide = async (req, res) => {
   try {
     const slide = await Hero.findById(req.params.id);

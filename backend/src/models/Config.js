@@ -9,6 +9,9 @@ const configSchema = new mongoose.Schema({
   name: { type: String, default: "Dr. Sonil Women's Care Centre" },
   doctorName: { type: String, default: "Dr. Sonil Srivastava" },
   designation: { type: String, default: "Best Gynecologist & IVF Specialist" },
+  
+  // Images
+  logo: { type: String, default: '' }, // Dynamic Logo
   doctorImage: { type: String, default: '' },
   reasonsImage: { type: String, default: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df4?q=80&w=1000' },
   aboutVideo: { type: String, default: 'https://www.youtube.com/watch?v=pL78_6q7eLg' },

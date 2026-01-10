@@ -21,7 +21,7 @@ export const Gallery = () => {
   }, []);
 
   const filteredItems = filter === 'all' ? items : items.filter(item => item.category === filter);
-  const categories = ['all', 'clinic', 'events', 'patients'];
+  const categories = ['all', 'clinic', 'events', 'patients', 'surgery'];
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
