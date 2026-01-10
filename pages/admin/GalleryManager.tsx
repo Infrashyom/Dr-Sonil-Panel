@@ -1,15 +1,16 @@
+
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { storage } from '../../utils/storage';
-import { getYoutubeThumbnail } from '../../utils/youtube';
+import { getYoutubeThumbnail, getInstagramEmbedUrl } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, Edit2 } from 'lucide-react';
+import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, Edit2, Instagram } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 
 export const GalleryManager = () => {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'gallery' | 'hero'>('gallery');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'reels' | 'hero'>('gallery');
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [galleryModal, setGalleryModal] = useState(false);
   const [galleryDeleteId, setGalleryDeleteId] = useState<string | null>(null);
@@ -18,6 +19,10 @@ export const GalleryManager = () => {
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [newGalleryItem, setNewGalleryItem] = useState<{ url: string; title: string; category: 'clinic' | 'events' | 'patients' | 'surgery', featured: boolean }>({ url: '', title: '', category: 'clinic', featured: false });
   
+  // Reels Form State
+  const [reelModal, setReelModal] = useState(false);
+  const [newReelItem, setNewReelItem] = useState({ url: '', title: '' });
+
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [heroModal, setHeroModal] = useState(false);
   const [heroDeleteId, setHeroDeleteId] = useState<string | null>(null);
@@ -28,7 +33,7 @@ export const GalleryManager = () => {
   // Computed Counts
   const featuredImageCount = galleryItems.filter(i => i.type === 'image' && i.featured).length;
   const featuredVideoCount = galleryItems.filter(i => i.type === 'video' && i.featured).length;
-  const IMAGE_LIMIT = 7; // Updated limit based on new layout
+  const IMAGE_LIMIT = 6; 
   const VIDEO_LIMIT = 3;
 
   useEffect(() => {
@@ -47,14 +52,12 @@ export const GalleryManager = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
-          // Compress image before setting state. 
-          // If hero, use 1920 width, otherwise 1200. High quality for both.
           const width = isHero ? 1920 : 1600;
           const compressed = await compressImage(reader.result as string, width, 0.95);
           setter((prev: any) => ({ ...prev, url: compressed }));
           showToast('Image processed (High Quality)', 'info');
         } catch (error) {
-          console.error("Compression failed, using original", error);
+          console.error("Compression failed", error);
           setter((prev: any) => ({ ...prev, url: reader.result as string }));
         } finally {
           setLoading(false);
@@ -76,6 +79,19 @@ export const GalleryManager = () => {
     showToast('Gallery item added successfully', 'success');
   };
 
+  const addReelItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReelItem.url) return;
+    setLoading(true);
+    // category 'events' is arbitrary for reels as they are filtered by type
+    await storage.addGalleryItem({ ...newReelItem, category: 'events', type: 'reel', featured: false } as any);
+    await refreshData();
+    setNewReelItem({ url: '', title: '' });
+    setLoading(false);
+    setReelModal(false);
+    showToast('Instagram Reel added successfully', 'success');
+  };
+
   const deleteGalleryItem = async () => {
     if (galleryDeleteId) {
       await storage.deleteGalleryItem(galleryDeleteId);
@@ -90,7 +106,6 @@ export const GalleryManager = () => {
     const item = galleryItems.find(i => i.id === id);
     if (!item) return;
 
-    // Check limits before adding feature
     if (!item.featured) {
         if (item.type === 'image' && featuredImageCount >= IMAGE_LIMIT) {
             showToast(`Home Page Limit Reached (${IMAGE_LIMIT}). Unstar an image to add this one.`, 'error');
@@ -121,12 +136,10 @@ export const GalleryManager = () => {
 
   const saveHeroSlide = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For edit, URL might not change, but must be present
     if (!newHeroSlide.url && !heroEditingId) return; 
     
     setLoading(true);
     if (heroEditingId) {
-        // Edit Mode
         await storage.updateHeroSlide(heroEditingId, { 
             image: newHeroSlide.url, 
             title: newHeroSlide.title, 
@@ -134,7 +147,6 @@ export const GalleryManager = () => {
         });
         showToast('Banner updated successfully', 'success');
     } else {
-        // Create Mode
         await storage.addHeroSlide({ 
             image: newHeroSlide.url, 
             title: newHeroSlide.title, 
@@ -166,48 +178,41 @@ export const GalleryManager = () => {
     return newGalleryItem.url;
   };
 
+  const reels = galleryItems.filter(item => item.type === 'reel');
+  const gallery = galleryItems.filter(item => item.type !== 'reel');
+
   return (
     <AdminLayout>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-serif font-bold text-pink-900">Media Manager</h1>
         <div className="flex bg-pink-50 p-1 rounded-xl border border-pink-100">
            <button onClick={() => setActiveTab('gallery')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'gallery' ? 'bg-white shadow text-pink-700' : 'text-pink-400 hover:text-pink-600'}`}>Gallery</button>
+           <button onClick={() => setActiveTab('reels')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'reels' ? 'bg-white shadow text-pink-700' : 'text-pink-400 hover:text-pink-600'}`}>Reels</button>
            <button onClick={() => setActiveTab('hero')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === 'hero' ? 'bg-white shadow text-pink-700' : 'text-pink-400 hover:text-pink-600'}`}>Banners</button>
         </div>
       </div>
 
-      {activeTab === 'gallery' ? (
+      {activeTab === 'gallery' && (
         <div>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
             <button onClick={() => setGalleryModal(true)} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
               <Plus size={18} /> Add Media
             </button>
             
-            {/* Status Counters */}
             <div className="flex gap-4">
                <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 text-xs font-bold ${featuredImageCount >= IMAGE_LIMIT ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
                   <ImageIcon size={14} />
                   <span>Home Images: {featuredImageCount}/{IMAGE_LIMIT}</span>
-                  {featuredImageCount >= IMAGE_LIMIT && (
-                    <span title="Limit reached. Unstar an image to add more.">
-                      <Info size={14} />
-                    </span>
-                  )}
                </div>
                <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 text-xs font-bold ${featuredVideoCount >= VIDEO_LIMIT ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
                   <Video size={14} />
                   <span>Home Videos: {featuredVideoCount}/{VIDEO_LIMIT}</span>
-                  {featuredVideoCount >= VIDEO_LIMIT && (
-                    <span title="Limit reached. Unstar a video to add more.">
-                      <Info size={14} />
-                    </span>
-                  )}
                </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {galleryItems.map(item => (
+            {gallery.map(item => (
               <div key={item.id} className={`relative group rounded-2xl overflow-hidden border shadow-sm bg-white ${item.featured ? 'ring-2 ring-yellow-400 border-yellow-400' : 'border-pink-100'}`}>
                 <div className="aspect-[4/3] relative">
                    <img 
@@ -223,7 +228,6 @@ export const GalleryManager = () => {
                      </div>
                    )}
                    
-                   {/* Featured Badge Overlay */}
                    {item.featured && (
                        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm z-10">
                           <Star size={10} fill="currentColor" /> Featured
@@ -231,7 +235,6 @@ export const GalleryManager = () => {
                    )}
                 </div>
                 
-                {/* Actions */}
                 <div className="absolute top-2 right-2 flex gap-2 z-20">
                    <button 
                     onClick={(e) => toggleFeatured(item.id, e)} 
@@ -256,7 +259,49 @@ export const GalleryManager = () => {
             ))}
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'reels' && (
+        <div>
+           <div className="flex justify-between items-center mb-6">
+             <button onClick={() => setReelModal(true)} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
+                <Plus size={18} /> Add Reel
+             </button>
+           </div>
+           
+           {reels.length === 0 ? (
+             <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300">
+               <Instagram size={48} className="mx-auto text-pink-200 mb-4" />
+               <p className="text-gray-400">No Instagram Reels added yet.</p>
+             </div>
+           ) : (
+             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {reels.map(item => (
+                  <div key={item.id} className="relative group rounded-2xl overflow-hidden border border-pink-100 shadow-sm bg-white aspect-[9/16]">
+                     <iframe 
+                        src={getInstagramEmbedUrl(item.url)} 
+                        className="w-full h-full pointer-events-none" 
+                        frameBorder="0" 
+                        scrolling="no"
+                     ></iframe>
+                     
+                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center p-4 text-center">
+                        <h4 className="text-white font-bold text-sm mb-4 line-clamp-2">{item.title}</h4>
+                        <button 
+                          onClick={() => setGalleryDeleteId(item.id)} 
+                          className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                     </div>
+                  </div>
+                ))}
+             </div>
+           )}
+        </div>
+      )}
+
+      {activeTab === 'hero' && (
         <div>
            <div className="flex items-center justify-between mb-6">
             <button onClick={() => handleOpenHeroModal()} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
@@ -377,6 +422,49 @@ export const GalleryManager = () => {
                <button type="button" onClick={() => setGalleryModal(false)} className="flex-1 bg-pink-50 text-pink-700 font-bold py-3 rounded-xl hover:bg-pink-100 transition-colors">Cancel</button>
                <button type="submit" disabled={loading} className="flex-1 bg-pink-900 text-white font-bold py-3 rounded-xl hover:bg-pink-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20">
                  {loading ? <Loader2 className="animate-spin" size={18}/> : `Save ${mediaType === 'video' ? 'Video' : 'Photo'}`}
+               </button>
+             </div>
+          </form>
+        </div>
+      )}
+
+      {/* Reel Modal */}
+      {reelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-900/20 backdrop-blur-sm">
+          <form onSubmit={addReelItem} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
+             <div className="flex justify-between items-center mb-6">
+               <h3 className="text-xl font-serif font-bold text-pink-900">Add Instagram Reel</h3>
+               <button type="button" onClick={() => setReelModal(false)} className="text-gray-400 hover:text-pink-600"><X size={24} /></button>
+             </div>
+             
+             <div className="space-y-4">
+                <div className="bg-pink-50 p-4 rounded-xl text-xs text-pink-800 mb-2">
+                   <strong>Tip:</strong> Open the Reel on Instagram, copy the URL from the browser address bar. <br/>
+                   Format: <code>instagram.com/reel/Code...</code>
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="Paste Instagram Reel Link" 
+                  required 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all" 
+                  value={newReelItem.url} 
+                  onChange={e => setNewReelItem({...newReelItem, url: e.target.value})} 
+                />
+                
+                <input 
+                  type="text" 
+                  placeholder="Caption / Title" 
+                  required 
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all" 
+                  value={newReelItem.title} 
+                  onChange={e => setNewReelItem({...newReelItem, title: e.target.value})} 
+                />
+             </div>
+
+             <div className="flex gap-4 mt-8">
+               <button type="button" onClick={() => setReelModal(false)} className="flex-1 bg-pink-50 text-pink-700 font-bold py-3 rounded-xl hover:bg-pink-100 transition-colors">Cancel</button>
+               <button type="submit" disabled={loading} className="flex-1 bg-pink-900 text-white font-bold py-3 rounded-xl hover:bg-pink-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20">
+                 {loading ? <Loader2 className="animate-spin" size={18}/> : 'Add Reel'}
                </button>
              </div>
           </form>

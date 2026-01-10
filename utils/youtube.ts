@@ -15,3 +15,14 @@ export const getYoutubeEmbedUrl = (url: string): string => {
   const id = getYoutubeId(url);
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : '';
 };
+
+export const getInstagramEmbedUrl = (url: string): string => {
+  if (!url) return '';
+  // Extract the reel ID from standard URL like https://www.instagram.com/reel/C8a1b2c3d/?igsh=...
+  const match = url.match(/\/reel\/([^/?#&]+)/);
+  if (match && match[1]) {
+    // Return the embed URL
+    return `https://www.instagram.com/reel/${match[1]}/embed`;
+  }
+  return '';
+};

@@ -7,12 +7,12 @@ const gallerySchema = new mongoose.Schema({
   title: { type: String, required: true },
   category: { 
     type: String, 
-    enum: ['clinic', 'events', 'patients'],
+    enum: ['clinic', 'events', 'patients', 'surgery'],
     default: 'clinic'
   },
   type: {
     type: String,
-    enum: ['image', 'video'],
+    enum: ['image', 'video', 'reel'],
     default: 'image'
   },
   featured: {

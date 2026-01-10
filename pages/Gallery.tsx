@@ -15,7 +15,8 @@ export const Gallery = () => {
   useEffect(() => {
     const loadItems = async () => {
       const stored = await storage.getGallery();
-      setItems(stored); 
+      // Filter out Reels from the standard gallery page to prevent layout issues
+      setItems(stored.filter(item => item.type !== 'reel')); 
     };
     loadItems();
   }, []);

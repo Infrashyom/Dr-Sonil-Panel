@@ -7,10 +7,10 @@ import { MapSection } from '../components/MapSection';
 import { ReasonsSection } from '../components/ReasonsSection';
 import { ReviewsSection } from '../components/ReviewsSection';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play } from 'lucide-react';
+import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play, Instagram } from 'lucide-react';
 import { storage } from '../utils/storage';
 import { GalleryItem, SiteConfig, Service, FAQ } from '../types';
-import { getYoutubeThumbnail, getYoutubeEmbedUrl } from '../utils/youtube';
+import { getYoutubeThumbnail, getYoutubeEmbedUrl, getInstagramEmbedUrl } from '../utils/youtube';
 import { getOptimizedUrl } from '../utils/imageUtils';
 
 const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onClick: () => void }> = ({ question, answer, isOpen, onClick }) => {
@@ -68,6 +68,7 @@ export const Home = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [galleryPreview, setGalleryPreview] = useState<GalleryItem[]>([]);
   const [videoPreview, setVideoPreview] = useState<GalleryItem[]>([]);
+  const [reels, setReels] = useState<GalleryItem[]>([]);
   const [playingVideo, setPlayingVideo] = useState<GalleryItem | null>(null);
   const [config, setConfig] = useState<SiteConfig | null>(null);
   
@@ -100,13 +101,17 @@ export const Home = () => {
         // Gallery
         const items = await storage.getGallery();
         
-        // Only show FEATURED (starred) images on home, max 7 to fill the grid
+        // Only show FEATURED (starred) images on home, max 6 to fill the grid
         const featuredImages = items.filter(item => item.type === 'image' && item.featured);
-        setGalleryPreview(featuredImages.slice(0, 7));
+        setGalleryPreview(featuredImages.slice(0, 6));
         
         // Featured videos: Show ONLY starred ones, max 3
         const featuredVideos = items.filter(item => item.type === 'video' && item.featured);
         setVideoPreview(featuredVideos.slice(0, 3));
+
+        // Reels
+        const reelsData = items.filter(item => item.type === 'reel');
+        setReels(reelsData);
         
       } catch (error) {
         console.error("Failed to load secondary home data", error);
@@ -119,14 +124,15 @@ export const Home = () => {
   const leftColFaqs = faqs.slice(0, midIndex);
   const rightColFaqs = faqs.slice(midIndex);
 
-  // New 7-item layout logic
+  // Layout Logic for 6 Items
   const getBentoClass = (index: number) => {
     switch(index) {
       case 0: return "md:col-span-2 md:row-span-2"; // Big Feature (Top Left)
-      case 1: return "md:col-span-1 md:row-span-1";
-      case 2: return "md:col-span-1 md:row-span-2"; // Tall Portrait (Right)
-      case 3: return "md:col-span-1 md:row-span-1";
-      case 6: return "md:col-span-2 md:row-span-1"; // Wide Landscape (Bottom Right)
+      case 1: return "md:col-span-2 md:row-span-1"; // Wide Top Right
+      case 2: return "md:col-span-1 md:row-span-1"; // Small Mid Right 1
+      case 3: return "md:col-span-1 md:row-span-1"; // Small Mid Right 2
+      case 4: return "md:col-span-2 md:row-span-1"; // Wide Bottom Left
+      case 5: return "md:col-span-2 md:row-span-1"; // Wide Bottom Right
       default: return "md:col-span-1 md:row-span-1";
     }
   };
@@ -388,6 +394,56 @@ export const Home = () => {
            </div>
         </div>
       </section>
+
+      {/* NEW: Reels Section */}
+      {reels.length > 0 && (
+        <section className="py-20 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
+           {/* Decorative Background Elements */}
+           <div className="absolute top-0 right-0 w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+           <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
+           
+           <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+                 <div>
+                   <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1.5 bg-pink-100 rounded-full text-pink-600">
+                        <Instagram size={16} />
+                      </div>
+                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-[10px]">InstaGram</span>
+                   </div>
+                   <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#590d22]">Latest Reels</h2>
+                 </div>
+                 
+                 <a 
+                   href={config?.socials?.instagram || '#'}
+                   target="_blank"
+                   rel="noreferrer" 
+                   className="inline-flex items-center gap-2 text-pink-700 font-bold hover:text-pink-900 transition-colors border-b border-pink-200 hover:border-pink-600 pb-1 text-sm"
+                 >
+                   Follow on Instagram <ArrowRight size={16} />
+                 </a>
+              </div>
+
+              {/* Horizontal Scroll Container */}
+              <div className="flex overflow-x-auto gap-5 pb-8 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                 {reels.map((reel, idx) => (
+                    <div key={idx} className="min-w-[220px] w-[220px] h-[390px] snap-center rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 relative shrink-0 bg-black group">
+                       <iframe 
+                         src={getInstagramEmbedUrl(reel.url)} 
+                         className="w-full h-full" 
+                         frameBorder="0" 
+                         scrolling="no" 
+                         allowFullScreen 
+                         title={reel.title}
+                       ></iframe>
+                       {/* Overlay to catch clicks if needed, or just aesthetic */}
+                       <div className="absolute inset-0 border-2 border-white/10 rounded-2xl pointer-events-none"></div>
+                    </div>
+                 ))}
+              </div>
+           </div>
+        </section>
+      )}
 
       {/* FAQs */}
       <section className="py-24 bg-white overflow-hidden">

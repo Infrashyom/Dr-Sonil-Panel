@@ -53,7 +53,7 @@ export interface GalleryItem {
   url: string;
   title: string;
   category: 'clinic' | 'events' | 'patients' | 'surgery';
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'reel';
   featured?: boolean;
 }
 

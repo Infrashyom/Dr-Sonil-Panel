@@ -38,7 +38,7 @@ export const addGalleryItem = async (req, res) => {
     let public_id = null;
 
     // Only upload to Cloudinary if it's an image
-    if (type !== 'video') {
+    if (type !== 'video' && type !== 'reel') {
       try {
         const uploadRes = await cloudinary.uploader.upload(url, {
           folder: 'dr_sonil/gallery',
