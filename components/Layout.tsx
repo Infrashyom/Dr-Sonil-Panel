@@ -253,7 +253,7 @@ const Footer = () => {
         {/* Bottom Bar: Compact Copyright */}
         <div className="mt-4 pt-4 border-t border-white/5 text-center">
             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">
-                &copy; {new Date().getFullYear()} {config.name}. <span className="mx-2 opacity-30">|</span> Developed by <span className="text-pink-600 font-bold">Infrashyom Nexus Pvt. Ltd.</span>
+                &copy; {new Date().getFullYear()} {config.name}.
             </p>
         </div>
       </div>
