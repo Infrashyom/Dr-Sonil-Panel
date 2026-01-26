@@ -7,7 +7,7 @@ import { MapSection } from '../components/MapSection';
 import { ReasonsSection } from '../components/ReasonsSection';
 import { ReviewsSection } from '../components/ReviewsSection';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play, Instagram } from 'lucide-react';
+import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play, Instagram, Smartphone, ExternalLink } from 'lucide-react';
 import { storage } from '../utils/storage';
 import { GalleryItem, SiteConfig, Service, FAQ } from '../types';
 import { getYoutubeThumbnail, getYoutubeEmbedUrl, getInstagramEmbedUrl } from '../utils/youtube';
@@ -109,7 +109,7 @@ export const Home = () => {
         const featuredVideos = items.filter(item => item.type === 'video' && item.featured);
         setVideoPreview(featuredVideos.slice(0, 3));
 
-        // Reels
+        // Reels - Get all, but we will slice in render
         const reelsData = items.filter(item => item.type === 'reel');
         setReels(reelsData);
         
@@ -363,7 +363,7 @@ export const Home = () => {
       )}
 
       {/* Image Gallery */}
-      <section className="py-24 bg-white">
+      <section className="pt-24 pb-0 bg-white">
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
            <div className="text-center mb-16">
               <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Gallery</span>
@@ -397,7 +397,7 @@ export const Home = () => {
 
       {/* NEW: Reels Section */}
       {reels.length > 0 && (
-        <section className="py-20 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
+        <section className="pt-12 pb-24 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
            {/* Decorative Background Elements */}
            <div className="absolute top-0 right-0 w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
@@ -409,7 +409,7 @@ export const Home = () => {
                       <div className="p-1.5 bg-pink-100 rounded-full text-pink-600">
                         <Instagram size={16} />
                       </div>
-                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-[10px]">InstaGram</span>
+                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-[10px]">On The Gram</span>
                    </div>
                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#590d22]">Latest Reels</h2>
                  </div>
@@ -425,21 +425,43 @@ export const Home = () => {
               </div>
 
               {/* Horizontal Scroll Container */}
-              <div className="flex overflow-x-auto gap-5 pb-8 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                 {reels.map((reel, idx) => (
-                    <div key={idx} className="min-w-[220px] w-[220px] h-[390px] snap-center rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 relative shrink-0 bg-black group">
-                       <iframe 
-                         src={getInstagramEmbedUrl(reel.url)} 
-                         className="w-full h-full" 
-                         frameBorder="0" 
-                         scrolling="no" 
-                         allowFullScreen 
-                         title={reel.title}
-                       ></iframe>
-                       {/* Overlay to catch clicks if needed, or just aesthetic */}
-                       <div className="absolute inset-0 border-2 border-white/10 rounded-2xl pointer-events-none"></div>
+              <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                 {/* Limit reels to first 5 */}
+                 {reels.slice(0, 5).map((reel, idx) => (
+                    <div key={idx} className="min-w-[300px] w-[300px] h-[540px] snap-center rounded-[2.5rem] overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-4 border-white relative shrink-0 bg-white group">
+                       {/* Phone Frame Effect Container */}
+                       <div className="w-full h-full rounded-[2.2rem] overflow-hidden bg-white">
+                           <iframe 
+                             src={getInstagramEmbedUrl(reel.url)} 
+                             className="w-full h-full" 
+                             frameBorder="0" 
+                             scrolling="no" 
+                             allowFullScreen 
+                             title={reel.title}
+                           ></iframe>
+                       </div>
+                       
+                       {/* Glossy Overlay for Phone look */}
+                       <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none ring-1 ring-black/5 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)]"></div>
                     </div>
                  ))}
+
+                 {/* "View More on Instagram" Card */}
+                 <a 
+                   href={config?.socials?.instagram || '#'}
+                   target="_blank"
+                   rel="noreferrer"
+                   className="min-w-[300px] w-[300px] h-[540px] snap-center rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-4 border-white relative shrink-0 bg-pink-50 flex flex-col items-center justify-center group"
+                 >
+                    <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center text-pink-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <Instagram size={40} />
+                    </div>
+                    <h3 className="font-serif font-bold text-2xl text-pink-900 mb-2">View More</h3>
+                    <p className="text-gray-500 text-sm mb-6">On Our Instagram</p>
+                    <span className="flex items-center gap-2 text-pink-700 font-bold text-sm uppercase tracking-wider group-hover:gap-3 transition-all">
+                       Visit Profile <ExternalLink size={16} />
+                    </span>
+                 </a>
               </div>
            </div>
         </section>
