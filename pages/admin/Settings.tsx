@@ -24,6 +24,7 @@ export const Settings = () => {
     googlePlaceId: '',
     googleMapLink: '',
     logo: '',
+    favicon: '',
     doctorImage: '',
     reasonsImage: '',
     aboutVideo: '',
@@ -89,15 +90,17 @@ export const Settings = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'doctorImage' | 'reasonsImage' | 'logo') => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'doctorImage' | 'reasonsImage' | 'logo' | 'favicon') => {
       const file = e.target.files?.[0];
       if (file) {
           setUploading(true);
           const reader = new FileReader();
           reader.onloadend = async () => {
               try {
-                // Compress before upload. Logo needs less compression usually but consistent logic helps.
-                const compressed = await compressImage(reader.result as string, field === 'logo' ? 500 : 1200);
+                // Compress before upload. Logo/Favicon need less compression but consistent logic helps.
+                // Favicon usually needs to be small.
+                const width = field === 'favicon' ? 128 : (field === 'logo' ? 500 : 1200);
+                const compressed = await compressImage(reader.result as string, width, 0.95);
                 setConfig(prev => ({ ...prev, [field]: compressed }));
                 showToast('Image processed. Click Save to apply.', 'info');
               } catch (err) {
@@ -270,6 +273,33 @@ export const Settings = () => {
                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, 'logo')} disabled={uploading} />
                                  </label>
                                  <p className="text-[10px] text-gray-400 mt-1">Recommended: Square PNG with transparent background</p>
+                            </div>
+                        )}
+                    </div>
+                 </div>
+
+                 {/* Favicon */}
+                 <div className="mb-6">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2 block">Site Favicon (Browser Tab Icon)</label>
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shrink-0 flex items-center justify-center">
+                            {config.favicon ? (
+                                <img src={config.favicon} alt="Favicon" className="w-8 h-8 object-contain" />
+                            ) : (
+                                <div className="text-gray-400 text-[10px] text-center">No Icon</div>
+                            )}
+                        </div>
+                        {isEditing && (
+                            <div className="flex-1">
+                                 <label className="cursor-pointer bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold py-2 px-4 rounded-lg text-sm inline-flex items-center gap-2 transition-colors">
+                                    {uploading ? <Loader2 className="animate-spin" size={16}/> : <ImageIcon size={16}/>}
+                                    {uploading ? 'Processing...' : 'Upload Favicon'}
+                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, 'favicon')} disabled={uploading} />
+                                 </label>
+                                 <p className="text-[10px] text-gray-400 mt-1">
+                                    <strong>Ratio:</strong> 1:1 (Square). <br/>
+                                    <strong>Recommended Size:</strong> 64x64 or 512x512 pixels.
+                                 </p>
                             </div>
                         )}
                     </div>

@@ -38,6 +38,18 @@ export const updateConfig = async (req, res) => {
           }
       }
 
+      // Handle Favicon Upload
+      if (updates.favicon && updates.favicon.startsWith('data:image')) {
+          try {
+             const uploadRes = await cloudinary.uploader.upload(updates.favicon, {
+               folder: 'dr_sonil/config',
+             });
+             updates.favicon = uploadRes.secure_url;
+          } catch(err) {
+              console.error("Favicon Upload Error", err);
+          }
+      }
+
       // Handle Doctor Image Upload
       if (updates.doctorImage && updates.doctorImage.startsWith('data:image')) {
           try {

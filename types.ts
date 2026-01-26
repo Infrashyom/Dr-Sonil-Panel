@@ -93,6 +93,7 @@ export interface SiteConfig {
   announcement?: string;
   googlePlaceId?: string;
   logo?: string;
+  favicon?: string;
   doctorImage?: string;
   reasonsImage?: string;
   aboutVideo?: string;

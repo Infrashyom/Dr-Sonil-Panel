@@ -12,6 +12,7 @@ const configSchema = new mongoose.Schema({
   
   // Images
   logo: { type: String, default: '' }, // Dynamic Logo
+  favicon: { type: String, default: '' }, // Dynamic Favicon
   doctorImage: { type: String, default: '' },
   reasonsImage: { type: String, default: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df4?q=80&w=1000' },
   aboutVideo: { type: String, default: 'https://www.youtube.com/watch?v=pL78_6q7eLg' },
