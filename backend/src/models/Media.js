@@ -7,7 +7,7 @@ const gallerySchema = new mongoose.Schema({
   title: { type: String, required: true },
   category: { 
     type: String, 
-    enum: ['clinic', 'events', 'patients', 'surgery'],
+    enum: ['clinic', 'events', 'patients', 'surgery', 'videos'],
     default: 'clinic'
   },
   type: {

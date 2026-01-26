@@ -52,7 +52,7 @@ export interface GalleryItem {
   id: string;
   url: string;
   title: string;
-  category: 'clinic' | 'events' | 'patients' | 'surgery';
+  category: 'clinic' | 'events' | 'patients' | 'surgery' | 'videos';
   type: 'image' | 'video' | 'reel';
   featured?: boolean;
 }

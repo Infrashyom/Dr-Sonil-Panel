@@ -67,6 +67,25 @@ export const addGalleryItem = async (req, res) => {
   }
 };
 
+export const updateGalleryItem = async (req, res) => {
+  try {
+    const { title, category } = req.body;
+    const item = await Gallery.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    item.title = title || item.title;
+    item.category = category || item.category;
+
+    const updatedItem = await item.save();
+    res.json(updatedItem);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 export const toggleGalleryFeature = async (req, res) => {
   try {
     const item = await Gallery.findById(req.params.id);

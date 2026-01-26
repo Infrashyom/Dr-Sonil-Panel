@@ -25,6 +25,7 @@ router.route('/gallery')
   .post(mediaController.addGalleryItem);
 
 router.route('/gallery/:id')
+  .put(mediaController.updateGalleryItem)
   .delete(mediaController.deleteGalleryItem);
 
 router.route('/gallery/:id/feature')

@@ -152,6 +152,14 @@ export const storage = {
     });
   },
 
+  updateGalleryItem: async (id: string, item: Partial<GalleryItem>) => {
+    await fetch(`${API_URL}/gallery/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+  },
+
   deleteGalleryItem: async (id: string) => {
     await fetch(`${API_URL}/gallery/${id}`, { method: 'DELETE' });
   },

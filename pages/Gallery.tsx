@@ -21,8 +21,13 @@ export const Gallery = () => {
     loadItems();
   }, []);
 
-  const filteredItems = filter === 'all' ? items : items.filter(item => item.category === filter);
-  const categories = ['all', 'clinic', 'events', 'patients', 'surgery'];
+  const filteredItems = items.filter(item => {
+    if (filter === 'all') return true;
+    if (filter === 'videos') return item.type === 'video';
+    return item.category === filter;
+  });
+
+  const categories = ['all', 'videos', 'clinic', 'events', 'patients', 'surgery'];
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -73,6 +78,12 @@ export const Gallery = () => {
               </div>
             </div>
           ))}
+          
+          {filteredItems.length === 0 && (
+             <div className="col-span-full text-center py-10 text-gray-400 italic">
+               No media found in this category.
+             </div>
+          )}
         </div>
       </div>
 

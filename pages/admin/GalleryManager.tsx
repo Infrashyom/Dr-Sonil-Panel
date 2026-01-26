@@ -14,10 +14,11 @@ export const GalleryManager = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [galleryModal, setGalleryModal] = useState(false);
   const [galleryDeleteId, setGalleryDeleteId] = useState<string | null>(null);
+  const [galleryEditingId, setGalleryEditingId] = useState<string | null>(null);
   
   // Gallery Form State
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
-  const [newGalleryItem, setNewGalleryItem] = useState<{ url: string; title: string; category: 'clinic' | 'events' | 'patients' | 'surgery', featured: boolean }>({ url: '', title: '', category: 'clinic', featured: false });
+  const [newGalleryItem, setNewGalleryItem] = useState<{ url: string; title: string; category: 'clinic' | 'events' | 'patients' | 'surgery' | 'videos', featured: boolean }>({ url: '', title: '', category: 'clinic', featured: false });
   
   // Reels Form State
   const [reelModal, setReelModal] = useState(false);
@@ -67,16 +68,50 @@ export const GalleryManager = () => {
     }
   };
 
-  const addGalleryItem = async (e: React.FormEvent) => {
+  // --- GALLERY HANDLERS ---
+  
+  const handleOpenGalleryModal = (item?: GalleryItem) => {
+      if (item) {
+          setGalleryEditingId(item.id);
+          setMediaType(item.type === 'reel' ? 'image' : item.type as any); // Reels handled separately, default to image for typing
+          setNewGalleryItem({
+              url: item.url,
+              title: item.title,
+              category: item.category,
+              featured: item.featured || false
+          });
+          // Prevent editing URL/Type for existing items to simplify UI
+      } else {
+          setGalleryEditingId(null);
+          setMediaType('image');
+          setNewGalleryItem({ url: '', title: '', category: 'clinic', featured: false });
+      }
+      setGalleryModal(true);
+  };
+
+  const saveGalleryItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGalleryItem.url) return;
     setLoading(true);
-    await storage.addGalleryItem({ ...newGalleryItem, type: mediaType } as any);
+
+    if (galleryEditingId) {
+        // Edit Mode (Only Title & Category)
+        await storage.updateGalleryItem(galleryEditingId, {
+            title: newGalleryItem.title,
+            category: newGalleryItem.category
+        });
+        showToast('Item updated successfully', 'success');
+    } else {
+        // Add Mode
+        await storage.addGalleryItem({ ...newGalleryItem, type: mediaType } as any);
+        showToast('Gallery item added successfully', 'success');
+    }
+    
     await refreshData();
     setNewGalleryItem({ url: '', title: '', category: 'clinic', featured: false });
+    setGalleryEditingId(null);
     setLoading(false);
     setGalleryModal(false);
-    showToast('Gallery item added successfully', 'success');
   };
 
   const addReelItem = async (e: React.FormEvent) => {
@@ -195,7 +230,7 @@ export const GalleryManager = () => {
       {activeTab === 'gallery' && (
         <div>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-            <button onClick={() => setGalleryModal(true)} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
+            <button onClick={() => handleOpenGalleryModal()} className="bg-pink-900 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-pink-900/20 hover:bg-pink-800 transition-colors flex items-center gap-2">
               <Plus size={18} /> Add Media
             </button>
             
@@ -227,25 +262,33 @@ export const GalleryManager = () => {
                         </div>
                      </div>
                    )}
-                   
-                   {item.featured && (
-                       <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm z-10">
-                          <Star size={10} fill="currentColor" /> Featured
-                       </div>
-                   )}
                 </div>
                 
-                <div className="absolute top-2 right-2 flex gap-2 z-20">
+                {/* LEFT: Star Button */}
+                <div className="absolute top-2 left-2 z-20">
                    <button 
                     onClick={(e) => toggleFeatured(item.id, e)} 
-                    className={`p-2 backdrop-blur rounded-full transition-all shadow-sm ${item.featured ? 'bg-yellow-100 text-yellow-600 hover:bg-white' : 'bg-black/50 text-white hover:bg-yellow-400 hover:text-yellow-900'}`}
+                    className={`p-2 backdrop-blur rounded-full transition-all shadow-sm ${item.featured ? 'bg-yellow-400 text-yellow-900 hover:bg-yellow-300' : 'bg-black/50 text-white hover:bg-yellow-400 hover:text-yellow-900'}`}
                     title={item.featured ? "Remove from Home" : "Feature on Home"}
                    >
                      <Star size={16} fill={item.featured ? "currentColor" : "none"} />
                    </button>
+                </div>
+
+                {/* RIGHT: Edit & Delete Buttons */}
+                <div className="absolute top-2 right-2 flex gap-2 z-20">
+                   <button 
+                    onClick={() => handleOpenGalleryModal(item)} 
+                    className="p-2 bg-white/90 backdrop-blur rounded-full text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-blue-50"
+                    title="Edit Category/Title"
+                   >
+                     <Edit2 size={16} />
+                   </button>
+                   
                    <button 
                     onClick={() => setGalleryDeleteId(item.id)} 
                     className="p-2 bg-white/90 backdrop-blur rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-50"
+                    title="Delete"
                    >
                      <Trash2 size={16} />
                    </button>
@@ -333,68 +376,82 @@ export const GalleryManager = () => {
       {/* Gallery Modal */}
       {galleryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-900/20 backdrop-blur-sm">
-          <form onSubmit={addGalleryItem} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
+          <form onSubmit={saveGalleryItem} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
              <div className="flex justify-between items-center mb-6">
-               <h3 className="text-xl font-serif font-bold text-pink-900">Add Gallery Item</h3>
+               <h3 className="text-xl font-serif font-bold text-pink-900">{galleryEditingId ? 'Edit Item Details' : 'Add Gallery Item'}</h3>
                <button type="button" onClick={() => setGalleryModal(false)} className="text-gray-400 hover:text-pink-600"><X size={24} /></button>
              </div>
              
-             {/* Media Type Selector */}
-             <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-               <button 
-                 type="button" 
-                 onClick={() => setMediaType('image')} 
-                 className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mediaType === 'image' ? 'bg-white shadow text-pink-600' : 'text-gray-500 hover:text-gray-700'}`}
-               >
-                 <ImageIcon size={16} /> Image
-               </button>
-               <button 
-                 type="button" 
-                 onClick={() => setMediaType('video')} 
-                 className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mediaType === 'video' ? 'bg-white shadow text-pink-600' : 'text-gray-500 hover:text-gray-700'}`}
-               >
-                 <Video size={16} /> YouTube Video
-               </button>
-             </div>
+             {/* Hide Media Type & Upload if Editing to simplify */}
+             {!galleryEditingId && (
+               <>
+                 {/* Media Type Selector */}
+                 <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+                   <button 
+                     type="button" 
+                     onClick={() => setMediaType('image')} 
+                     className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mediaType === 'image' ? 'bg-white shadow text-pink-600' : 'text-gray-500 hover:text-gray-700'}`}
+                   >
+                     <ImageIcon size={16} /> Image
+                   </button>
+                   <button 
+                     type="button" 
+                     onClick={() => setMediaType('video')} 
+                     className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mediaType === 'video' ? 'bg-white shadow text-pink-600' : 'text-gray-500 hover:text-gray-700'}`}
+                   >
+                     <Video size={16} /> YouTube Video
+                   </button>
+                 </div>
 
-             <div className="mb-6">
-                {mediaType === 'image' ? (
-                  <label className="block w-full cursor-pointer group">
-                    <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewGalleryItem)} />
-                    <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${newGalleryItem.url ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
-                      {newGalleryItem.url ? (
-                        <img src={newGalleryItem.url} className="w-full h-48 object-cover rounded-lg shadow-sm" alt="Preview" />
-                      ) : (
-                        <div className="flex flex-col items-center text-gray-400 group-hover:text-pink-600">
-                          <UploadCloud size={48} className="mb-2" />
-                          <span className="text-sm font-medium">Click to upload image</span>
-                          <span className="text-xs mt-1 text-gray-300">JPG, PNG up to 10MB</span>
+                 <div className="mb-6">
+                    {mediaType === 'image' ? (
+                      <label className="block w-full cursor-pointer group">
+                        <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewGalleryItem)} />
+                        <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${newGalleryItem.url ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
+                          {newGalleryItem.url ? (
+                            <img src={newGalleryItem.url} className="w-full h-48 object-cover rounded-lg shadow-sm" alt="Preview" />
+                          ) : (
+                            <div className="flex flex-col items-center text-gray-400 group-hover:text-pink-600">
+                              <UploadCloud size={48} className="mb-2" />
+                              <span className="text-sm font-medium">Click to upload image</span>
+                              <span className="text-xs mt-1 text-gray-300">JPG, PNG up to 10MB</span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </label>
-                ) : (
-                  <div className="space-y-4">
-                    <input 
-                      type="text"
-                      placeholder="Paste YouTube Link Here"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-pink-500 focus:outline-none"
-                      value={newGalleryItem.url}
-                      onChange={e => setNewGalleryItem({...newGalleryItem, url: e.target.value})}
-                    />
-                    {newGalleryItem.url && (
-                       <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
-                          <img src={getPreviewUrl()} className="w-full h-full object-cover opacity-60" alt="Video Preview" />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <MonitorPlay className="text-white w-12 h-12" />
-                          </div>
-                       </div>
+                      </label>
+                    ) : (
+                      <div className="space-y-4">
+                        <input 
+                          type="text"
+                          placeholder="Paste YouTube Link Here"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                          value={newGalleryItem.url}
+                          onChange={e => setNewGalleryItem({...newGalleryItem, url: e.target.value})}
+                        />
+                        {newGalleryItem.url && (
+                           <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
+                              <img src={getPreviewUrl()} className="w-full h-full object-cover opacity-60" alt="Video Preview" />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <MonitorPlay className="text-white w-12 h-12" />
+                              </div>
+                           </div>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-             </div>
+                 </div>
+                 {loading && mediaType === 'image' && !newGalleryItem.url && <div className="text-center py-4 text-pink-600"><Loader2 className="animate-spin mx-auto"/> Processing...</div>}
+               </>
+             )}
              
-             {loading && mediaType === 'image' && !newGalleryItem.url && <div className="text-center py-4 text-pink-600"><Loader2 className="animate-spin mx-auto"/> Processing...</div>}
+             {/* If Editing, show current image preview small */}
+             {galleryEditingId && (
+                 <div className="mb-6 p-4 bg-gray-50 rounded-xl flex items-center gap-4">
+                    <img src={newGalleryItem.url.includes('youtube') ? getYoutubeThumbnail(newGalleryItem.url) : newGalleryItem.url} className="w-20 h-20 object-cover rounded-lg bg-gray-200" alt="Preview"/>
+                    <div className="text-xs text-gray-500">
+                        <p><strong>Note:</strong> To change the image/video file, please delete this item and create a new one.</p>
+                    </div>
+                 </div>
+             )}
              
              <div className="space-y-4">
                <input 
@@ -415,13 +472,14 @@ export const GalleryManager = () => {
                  <option value="surgery">Surgery</option>
                  <option value="events">Events</option>
                  <option value="patients">Patients</option>
+                 <option value="videos">Videos</option>
                </select>
              </div>
 
              <div className="flex gap-4 mt-8">
                <button type="button" onClick={() => setGalleryModal(false)} className="flex-1 bg-pink-50 text-pink-700 font-bold py-3 rounded-xl hover:bg-pink-100 transition-colors">Cancel</button>
                <button type="submit" disabled={loading} className="flex-1 bg-pink-900 text-white font-bold py-3 rounded-xl hover:bg-pink-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20">
-                 {loading ? <Loader2 className="animate-spin" size={18}/> : `Save ${mediaType === 'video' ? 'Video' : 'Photo'}`}
+                 {loading ? <Loader2 className="animate-spin" size={18}/> : (galleryEditingId ? 'Update Details' : `Save ${mediaType === 'video' ? 'Video' : 'Photo'}`)}
                </button>
              </div>
           </form>
