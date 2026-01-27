@@ -21,19 +21,25 @@ export const MapSection = () => {
   return (
     <section className="py-16 bg-white border-t border-pink-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
-           <div className="bg-pink-100 p-3 rounded-full text-pink-600">
-             <MapPin size={24} />
+        {/* Header: Center on mobile, Left on desktop */}
+        <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between text-center md:text-left mb-10 gap-6">
+           <div className="flex flex-col items-center md:items-start gap-4">
+               <div className="flex items-center justify-center md:justify-start gap-3">
+                   <div className="bg-pink-100 p-2 rounded-full text-pink-600">
+                     <MapPin size={24} />
+                   </div>
+                   <div>
+                     <h2 className="text-3xl font-serif font-bold text-gray-900 leading-tight">Visit Our Centre</h2>
+                     <p className="text-gray-500 text-sm">Accessible location in the heart of Arera Colony.</p>
+                   </div>
+               </div>
            </div>
-           <div>
-             <h2 className="text-3xl font-serif font-bold text-gray-900">Visit Our Centre</h2>
-             <p className="text-gray-500">Accessible location in the heart of Arera Colony.</p>
-           </div>
+
            <a 
              href={directionsUrl}
              target="_blank" 
              rel="noreferrer"
-             className="md:ml-auto flex items-center gap-2 bg-pink-900 text-white px-6 py-3 rounded-full hover:bg-pink-700 transition-colors shadow-lg"
+             className="flex items-center gap-2 bg-pink-900 text-white px-6 py-3 rounded-full hover:bg-pink-700 transition-colors shadow-lg"
            >
              <Navigation size={18} />
              <span>Get Directions</span>
@@ -52,7 +58,7 @@ export const MapSection = () => {
             className="filter contrast-100 saturate-100 hover:contrast-100 transition-all duration-500"
           ></iframe>
           
-          <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-6 rounded-xl shadow-xl border border-pink-100 max-w-sm">
+          <div className="absolute bottom-6 left-6 bg-white/95 backdrop-blur-md p-6 rounded-xl shadow-xl border border-pink-100 max-w-sm hidden md:block">
              <h4 className="font-serif font-bold text-pink-900 text-lg mb-2">{config.name}</h4>
              <p className="text-sm text-gray-600 mb-1">{config.address}</p>
           </div>

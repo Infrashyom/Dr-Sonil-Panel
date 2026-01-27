@@ -64,7 +64,7 @@ export const ReviewsSection = () => {
     : `https://www.google.com/search?q=${encodeURIComponent((config?.name || 'Dr Sonil') + ' reviews')}`;
 
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section className="py-12 md:pt-8 md:pb-24 bg-white overflow-hidden">
        {/* Inline Styles for Animation */}
        <style>{`
         @keyframes scroll {
@@ -80,13 +80,14 @@ export const ReviewsSection = () => {
       `}</style>
       
       <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-           <div>
-             <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Testimonials</span>
-             <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#590d22]">Stories of Hope</h2>
-           </div>
+        {/* Header: Center on mobile, Left on desktop */}
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 md:mb-16 gap-8 text-center md:text-left">
+             <div>
+                <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Testimonials</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#590d22]">Stories of Hope</h2>
+             </div>
            
-           <div className="flex flex-wrap gap-3">
+             <div className="flex flex-wrap gap-3 justify-center md:justify-end">
                <a 
                  href={rateUrl}
                  target="_blank"

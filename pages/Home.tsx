@@ -7,7 +7,7 @@ import { MapSection } from '../components/MapSection';
 import { ReasonsSection } from '../components/ReasonsSection';
 import { ReviewsSection } from '../components/ReviewsSection';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play, Instagram, Smartphone, ExternalLink } from 'lucide-react';
+import { ArrowRight, Star, Users, Baby, Plus, Minus, Microscope, Award, CheckCircle2, PlayCircle, X, Play, Instagram, ExternalLink } from 'lucide-react';
 import { storage } from '../utils/storage';
 import { GalleryItem, SiteConfig, Service, FAQ } from '../types';
 import { getYoutubeThumbnail, getYoutubeEmbedUrl, getInstagramEmbedUrl } from '../utils/youtube';
@@ -40,23 +40,20 @@ const FAQItem: React.FC<{ question: string; answer: string; isOpen: boolean; onC
 
 // Skeleton Component for Meet Expert Section
 const MeetExpertSkeleton = () => (
-  <section className="py-24 bg-white relative z-10">
+  <section className="py-12 md:py-24 bg-white relative z-10">
     <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
-      <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+      <div className="h-10 w-64 bg-gray-200 rounded mx-auto mb-12 animate-pulse"></div>
+      <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
         {/* Image Skeleton */}
         <div className="w-full lg:w-1/2 relative h-[400px] lg:h-[700px] bg-gray-100 rounded-[3rem] animate-pulse"></div>
         {/* Text Skeleton */}
         <div className="w-full lg:w-1/2 space-y-8">
-          <div className="flex items-center gap-3">
-             <div className="w-12 h-[2px] bg-gray-200"></div>
-             <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-          </div>
+          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
           <div className="h-16 w-3/4 bg-gray-200 rounded-xl animate-pulse"></div>
           <div className="h-8 w-1/2 bg-gray-200 rounded-lg animate-pulse"></div>
           <div className="space-y-4 pt-2">
             <div className="h-4 w-full bg-gray-100 rounded animate-pulse"></div>
             <div className="h-4 w-full bg-gray-100 rounded animate-pulse"></div>
-            <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse"></div>
           </div>
         </div>
       </div>
@@ -149,12 +146,24 @@ export const Home = () => {
       {configLoading ? (
         <MeetExpertSkeleton />
       ) : (
-        <section className="py-16 md:py-24 bg-white relative z-10">
+        <section className="py-12 md:py-24 bg-white relative z-10">
           <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
-            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+            
+            {/* MOBILE ONLY HEADER: Center Aligned */}
+            <div className="block lg:hidden text-center mb-10">
+                <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs block mb-3">Medical Director</span>
+                <h2 className="text-4xl font-serif font-bold text-[#590d22] mb-3 leading-none">
+                    {config?.doctorName || 'Dr. Sonil'}
+                </h2>
+                <h3 className="text-xl font-medium text-pink-700 italic">
+                    {config?.designation || 'Specialist'}
+                </h3>
+            </div>
+
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-12 lg:gap-24">
               
-              {/* Image Side - Fully Enlarged */}
-              <div className="w-full lg:w-1/2 relative order-2 lg:order-1">
+              {/* Image Side (Order 1 on Mobile, Left on Desktop) */}
+              <div className="w-full lg:w-1/2 relative order-1">
                  <div className="relative w-full aspect-[3/4] lg:aspect-auto lg:h-[700px]">
                     <div className="absolute top-4 right-4 w-full h-full border-2 border-pink-100 rounded-[2rem] md:rounded-[3rem] z-0 hidden md:block translate-x-4 translate-y-4"></div>
                     <div className="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl z-10 w-full h-full">
@@ -167,10 +176,10 @@ export const Home = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-transparent to-transparent"></div>
                       <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white z-20">
                          <p className="text-xs md:text-sm font-bold uppercase tracking-wider mb-2 opacity-90">Experience</p>
-                         <p className="text-4xl md:text-5xl font-serif font-bold">15+ Years</p>
+                         <p className="text-4xl md:text-5xl font-serif font-bold">10+ Years</p>
                       </div>
                     </div>
-                    {/* Floating badge - hidden on small mobile, visible on larger */}
+                    {/* Floating badge */}
                     <div className="absolute -bottom-6 -right-4 md:-bottom-8 md:-right-8 bg-white p-4 md:p-6 rounded-2xl shadow-xl z-20 flex items-center gap-4 border border-pink-50 max-w-[200px] md:max-w-[240px] hidden sm:flex">
                        <div className="bg-pink-50 p-2 md:p-3 rounded-xl text-pink-600 shrink-0">
                           <Award size={24} className="md:w-8 md:h-8" />
@@ -183,21 +192,21 @@ export const Home = () => {
                  </div>
               </div>
 
-              {/* Text Side */}
-              <div className="w-full lg:w-1/2 order-1 lg:order-2">
+              {/* Text Side (Order 2 on Mobile, Right on Desktop) */}
+              <div className="w-full lg:w-1/2 order-2">
                 <FadeInUp>
-                  <div className="flex items-center gap-3 mb-4 md:mb-6">
-                    <span className="w-12 h-[2px] bg-pink-600"></span>
-                    <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs md:text-sm">Medical Director</span>
+                  {/* DESKTOP ONLY HEADER: Left Aligned, Inside Text Column */}
+                  <div className="hidden lg:block text-left mb-8">
+                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-sm block mb-3">Medical Director</span>
+                      <h2 className="text-5xl lg:text-7xl font-serif font-bold text-[#590d22] mb-3 leading-none">
+                          {config?.doctorName || 'Dr. Sonil'}
+                      </h2>
+                      <h3 className="text-2xl font-medium text-pink-700 italic">
+                          {config?.designation || 'Specialist'}
+                      </h3>
                   </div>
-                  <h2 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-[#590d22] mb-4 md:mb-6 leading-none">
-                    {config?.doctorName || 'Dr. Sonil'}
-                  </h2>
-                  <h3 className="text-xl md:text-2xl font-medium text-pink-700 mb-6 md:mb-8 italic">
-                    {config?.designation || 'Specialist'}
-                  </h3>
-                  
-                  <div className="space-y-6 text-gray-600 leading-relaxed font-light mb-8 md:mb-10 text-base md:text-lg text-justify lg:text-left">
+
+                  <div className="space-y-6 text-gray-600 leading-relaxed font-light mb-8 md:mb-10 text-base md:text-lg text-left">
                     <p>
                       With a legacy of excellence in women's healthcare, {config?.doctorName || 'Dr. Sonil'} brings compassion and advanced medical science together. As a Gold Medalist and specialist in high-risk pregnancies, she has successfully handled thousands of complex cases.
                     </p>
@@ -206,14 +215,14 @@ export const Home = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
                      <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">Painless Delivery</span></div>
                      <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">Advanced IVF Lab</span></div>
                      <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base">High-Risk Care</span></div>
                      <div className="flex items-center gap-3"><CheckCircle2 className="text-pink-600 w-5 h-5 md:w-6 md:h-6 shrink-0" /><span className="font-bold text-gray-700 text-sm md:text-base"><span className="text-pink-600">3D</span> Laparoscopy</span></div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center lg:justify-start">
                     <Link to="/about" className="px-8 py-4 bg-[#590d22] text-white rounded-full font-bold uppercase tracking-wider text-sm hover:bg-[#800f2f] transition-all shadow-lg hover:-translate-y-1 text-center">
                       Read Full Profile
                     </Link>
@@ -231,16 +240,16 @@ export const Home = () => {
       <ReasonsSection />
 
       {/* Stats Section */}
-      <section className="py-16 md:py-20 bg-pink-900 text-white relative overflow-hidden">
+      <section className="py-12 md:py-20 bg-pink-900 text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-64 h-64 bg-pink-500 rounded-full blur-[100px] opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500 rounded-full blur-[100px] opacity-30 translate-x-1/2 translate-y-1/2"></div>
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
               {[
-                { icon: Baby, label: "IVF Babies", value: "5000+" },
-                { icon: Users, label: "Happy Patients", value: "15k+" },
+                { icon: Baby, label: "IVF Babies", value: "3000+" },
+                { icon: Users, label: "Happy Patients", value: "12k+" },
                 { icon: Star, label: "Success Rate", value: "98%" },
-                { icon: Microscope, label: "Experience", value: "20 Yrs" }
+                { icon: Microscope, label: "Experience", value: "10 Yrs" }
               ].map((stat, idx) => {
                  const num = parseInt(stat.value);
                  const suffix = stat.value.replace(/[0-9]/g, '');
@@ -260,9 +269,11 @@ export const Home = () => {
         </div>
       </section>
 
-      <section className="py-24 bg-white">
+      {/* Services Section */}
+      {/* Reduced bottom padding on desktop to minimize gap with testimonials - Updated to pb-8 */}
+      <section className="pt-12 md:pt-24 pb-12 md:pb-8 bg-white">
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 md:mb-16 gap-6 text-center md:text-left">
             <div>
               <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Our Expertise</span>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-[#590d22]">Clinical Services</h2>
@@ -283,20 +294,20 @@ export const Home = () => {
 
       <ReviewsSection />
 
-      {/* Revamped Video Gallery */}
+      {/* Video Gallery */}
       {videoPreview.length > 0 && (
-        <section className="py-24 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
+        <section className="py-12 md:py-24 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
           
           <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            {/* Header: Center on Mobile, Left on Desktop */}
+            <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 gap-6 text-center md:text-left">
                <FadeInUp>
                  <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Watch Us</span>
                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#590d22]">Patient Success Stories</h2>
                </FadeInUp>
-               {/* UPDATED: Link to YouTube Channel */}
                <a 
                  href={config?.socials?.youtube || '#'} 
                  target="_blank"
@@ -310,7 +321,7 @@ export const Home = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto lg:h-[500px]">
                {/* Main Featured Video (First Item) */}
                <div 
-                 className="lg:col-span-8 h-full rounded-3xl overflow-hidden shadow-2xl relative cursor-pointer group"
+                 className="lg:col-span-8 h-[300px] md:h-[450px] lg:h-full rounded-3xl overflow-hidden shadow-2xl relative cursor-pointer group"
                  onClick={() => setPlayingVideo(videoPreview[0])}
                >
                   <img src={getYoutubeThumbnail(videoPreview[0].url)} alt={videoPreview[0].title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -330,7 +341,7 @@ export const Home = () => {
                   {videoPreview.slice(1).map((item, idx) => (
                     <div 
                       key={idx} 
-                      className="flex-1 rounded-2xl overflow-hidden shadow-lg relative cursor-pointer group border border-pink-100"
+                      className="flex-1 rounded-2xl overflow-hidden shadow-lg relative cursor-pointer group border border-pink-100 min-h-[150px]"
                       onClick={() => setPlayingVideo(item)}
                     >
                         <img src={getYoutubeThumbnail(item.url)} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -351,7 +362,7 @@ export const Home = () => {
                   ))}
                   {/* Fallback if less than 3 videos */}
                   {videoPreview.length < 3 && (
-                     <div className="flex-1 rounded-2xl bg-pink-50 border border-pink-100 border-dashed flex items-center justify-center flex-col text-center p-6">
+                     <div className="flex-1 rounded-2xl bg-pink-50 border border-pink-100 border-dashed flex items-center justify-center flex-col text-center p-6 min-h-[150px]">
                         <PlayCircle className="text-pink-300 mb-2" size={32} />
                         <p className="text-pink-800 font-bold text-sm">More stories coming soon...</p>
                      </div>
@@ -363,7 +374,7 @@ export const Home = () => {
       )}
 
       {/* Image Gallery */}
-      <section className="pt-24 pb-0 bg-white">
+      <section className="pt-12 md:pt-24 pb-0 bg-white">
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
            <div className="text-center mb-16">
               <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-xs mb-2 block">Gallery</span>
@@ -395,7 +406,7 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* NEW: Reels Section */}
+      {/* Reels Section */}
       {reels.length > 0 && (
         <section className="pt-12 pb-24 bg-gradient-to-b from-white to-pink-50 relative overflow-hidden">
            {/* Decorative Background Elements */}
@@ -403,13 +414,14 @@ export const Home = () => {
            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
            
            <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 relative z-10">
-              <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+              {/* Header: Center on Mobile, Left on Desktop */}
+              <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 gap-6 text-center md:text-left">
                  <div>
-                   <div className="flex items-center gap-2 mb-2">
+                   <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
                       <div className="p-1.5 bg-pink-100 rounded-full text-pink-600">
                         <Instagram size={16} />
                       </div>
-                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-[10px]">On The Gram</span>
+                      <span className="text-pink-600 font-bold uppercase tracking-[0.2em] text-[10px]">Instagram</span>
                    </div>
                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#590d22]">Latest Reels</h2>
                  </div>
@@ -429,7 +441,6 @@ export const Home = () => {
                  {/* Limit reels to first 5 */}
                  {reels.slice(0, 5).map((reel, idx) => (
                     <div key={idx} className="min-w-[300px] w-[300px] h-[540px] snap-center rounded-[2.5rem] overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-4 border-white relative shrink-0 bg-white group">
-                       {/* Phone Frame Effect Container */}
                        <div className="w-full h-full rounded-[2.2rem] overflow-hidden bg-white">
                            <iframe 
                              src={getInstagramEmbedUrl(reel.url)} 
@@ -440,13 +451,10 @@ export const Home = () => {
                              title={reel.title}
                            ></iframe>
                        </div>
-                       
-                       {/* Glossy Overlay for Phone look */}
                        <div className="absolute inset-0 rounded-[2.5rem] pointer-events-none ring-1 ring-black/5 shadow-[inset_0_0_20px_rgba(0,0,0,0.05)]"></div>
                     </div>
                  ))}
 
-                 {/* "View More on Instagram" Card */}
                  <a 
                    href={config?.socials?.instagram || '#'}
                    target="_blank"
@@ -468,7 +476,7 @@ export const Home = () => {
       )}
 
       {/* FAQs */}
-      <section className="py-24 bg-white overflow-hidden">
+      <section className="py-12 md:py-24 bg-white overflow-hidden">
         <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
              <h2 className="text-4xl font-serif font-bold text-[#590d22] mb-4">Common Questions</h2>
