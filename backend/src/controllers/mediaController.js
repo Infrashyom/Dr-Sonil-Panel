@@ -129,16 +129,30 @@ export const getHeroSlides = async (req, res) => {
 
 export const addHeroSlide = async (req, res) => {
   try {
-    const { image, title, subtitle } = req.body;
+    const { image, mobileImage, title, subtitle } = req.body;
 
-    // Upload to Cloudinary
+    // Upload Desktop to Cloudinary
     const uploadRes = await cloudinary.uploader.upload(image, {
       folder: 'dr_sonil/hero',
     });
 
+    let mobileUrl = '';
+    let mobilePublicId = '';
+
+    // Upload Mobile to Cloudinary if provided
+    if (mobileImage && mobileImage.startsWith('data:image')) {
+        const mobileRes = await cloudinary.uploader.upload(mobileImage, {
+            folder: 'dr_sonil/hero',
+        });
+        mobileUrl = mobileRes.secure_url;
+        mobilePublicId = mobileRes.public_id;
+    }
+
     const slide = await Hero.create({ 
       image: uploadRes.secure_url, 
       public_id: uploadRes.public_id,
+      mobileImage: mobileUrl,
+      mobile_public_id: mobilePublicId,
       title, 
       subtitle 
     });
@@ -152,12 +166,12 @@ export const addHeroSlide = async (req, res) => {
 
 export const updateHeroSlide = async (req, res) => {
   try {
-    const { image, title, subtitle } = req.body;
+    const { image, mobileImage, title, subtitle } = req.body;
     const slide = await Hero.findById(req.params.id);
     
     if (!slide) return res.status(404).json({ message: 'Slide not found' });
 
-    // Handle Image Update
+    // Handle Desktop Image Update
     if (image && image !== slide.image && image.startsWith('data:image')) {
        // Delete old image from Cloudinary
        if (slide.public_id) {
@@ -170,6 +184,21 @@ export const updateHeroSlide = async (req, res) => {
        });
        slide.image = uploadRes.secure_url;
        slide.public_id = uploadRes.public_id;
+    }
+
+    // Handle Mobile Image Update
+    if (mobileImage && mobileImage !== slide.mobileImage && mobileImage.startsWith('data:image')) {
+        // Delete old mobile image
+        if (slide.mobile_public_id) {
+            await cloudinary.uploader.destroy(slide.mobile_public_id);
+        }
+        
+        // Upload new
+        const mobileRes = await cloudinary.uploader.upload(mobileImage, {
+            folder: 'dr_sonil/hero',
+        });
+        slide.mobileImage = mobileRes.secure_url;
+        slide.mobile_public_id = mobileRes.public_id;
     }
 
     slide.title = title || slide.title;
@@ -188,9 +217,14 @@ export const deleteHeroSlide = async (req, res) => {
     const slide = await Hero.findById(req.params.id);
     if (!slide) return res.status(404).json({ message: 'Slide not found' });
 
-    // Delete from Cloudinary
+    // Delete Desktop image
     if (slide.public_id) {
       await cloudinary.uploader.destroy(slide.public_id);
+    }
+
+    // Delete Mobile image
+    if (slide.mobile_public_id) {
+      await cloudinary.uploader.destroy(slide.mobile_public_id);
     }
 
     await Hero.findByIdAndDelete(req.params.id);

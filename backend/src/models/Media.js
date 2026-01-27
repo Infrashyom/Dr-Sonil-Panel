@@ -24,6 +24,8 @@ const gallerySchema = new mongoose.Schema({
 const heroSchema = new mongoose.Schema({
   image: { type: String, required: true },
   public_id: { type: String }, // Cloudinary ID for deletion
+  mobileImage: { type: String }, // Separate image for mobile
+  mobile_public_id: { type: String }, // Cloudinary ID for mobile image
   title: { type: String, required: true },
   subtitle: { type: String, required: true }
 }, { timestamps: true });

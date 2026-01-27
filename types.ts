@@ -60,6 +60,7 @@ export interface GalleryItem {
 export interface HeroSlide {
   id: string;
   image: string;
+  mobileImage?: string;
   title: string;
   subtitle: string;
 }

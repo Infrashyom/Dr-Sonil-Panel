@@ -59,8 +59,9 @@ export const HeroCarousel = () => {
 
   return (
     <div 
-      // Adjusted desktop margin to approx header height (65px) to eliminate white gap
-      className="relative h-[85vh] md:h-[calc(100vh-65px)] w-full overflow-hidden mt-0 md:mt-[65px] group bg-gray-900"
+      // Adjusted desktop margin to approx header height (65px)
+      // Mobile height stays 55vh, but we now use specific mobile images if available
+      className="relative h-[55vh] sm:h-[70vh] md:h-[calc(100vh-65px)] w-full overflow-hidden mt-0 md:mt-[65px] group bg-gray-900"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -76,17 +77,35 @@ export const HeroCarousel = () => {
           >
             {/* Image with Zoom Effect */}
             <div className={`w-full h-full overflow-hidden`}>
+              {/* Mobile Image (if available) - Hidden on desktop */}
+              {slide.mobileImage ? (
+                 <img 
+                    src={getOptimizedUrl(slide.mobileImage, 800)} 
+                    alt={slide.title} 
+                    className={`md:hidden w-full h-full object-cover object-center`}
+                    loading={index === 0 ? "eager" : "lazy"} 
+                 />
+              ) : (
+                 // Fallback for mobile if no mobileImage provided
+                 <img 
+                    src={getOptimizedUrl(slide.image, 800)} 
+                    alt={slide.title} 
+                    className={`md:hidden w-full h-full object-cover object-center transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                    loading={index === 0 ? "eager" : "lazy"} 
+                 />
+              )}
+
+              {/* Desktop Image - Hidden on mobile */}
               <img 
                 src={getOptimizedUrl(slide.image, 1920)} 
                 alt={slide.title} 
-                className={`w-full h-full object-cover object-center transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                className={`hidden md:block w-full h-full object-cover object-center transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
                 loading={index === 0 ? "eager" : "lazy"} 
               />
             </div>
 
             {/* Gradient Overlay & Content Container */}
-            {/* Reduced pt-24 to pt-20 on mobile for better spacing */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/90 md:via-black/60 md:via-40% md:to-transparent flex flex-col justify-end md:justify-center pb-20 md:pb-0 pt-20 md:pt-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent md:bg-gradient-to-r md:from-black/90 md:via-black/60 md:via-40% md:to-transparent flex flex-col justify-end md:justify-center pb-12 md:pb-0 pt-20 md:pt-0">
               <div className="max-w-[95%] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 w-full">
                 <div className={`max-w-full md:max-w-3xl transition-all duration-1000 delay-300 flex flex-col items-center md:items-start text-center md:text-left ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                   
@@ -96,12 +115,12 @@ export const HeroCarousel = () => {
                   </div>
                   
                   {/* Title */}
-                  <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-4 leading-tight md:leading-[1.1] drop-shadow-lg">
+                  <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-4 leading-tight md:leading-[1.1] drop-shadow-lg">
                     {slide.title}
                   </h1>
                   
                   {/* Subtitle */}
-                  <p className="text-base sm:text-lg md:text-xl text-gray-200 mb-8 font-light leading-relaxed drop-shadow-md border-l-0 md:border-l-4 border-pink-600 md:pl-4 max-w-lg md:max-w-none">
+                  <p className="text-sm sm:text-lg md:text-xl text-gray-200 mb-8 font-light leading-relaxed drop-shadow-md border-l-0 md:border-l-4 border-pink-600 md:pl-4 max-w-lg md:max-w-none line-clamp-3 md:line-clamp-none">
                     {slide.subtitle}
                   </p>
                   
@@ -109,13 +128,13 @@ export const HeroCarousel = () => {
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                     <Link 
                       to="/contact" 
-                      className="bg-pink-600 text-white px-8 py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-pink-700 transition-all shadow-lg shadow-pink-600/30 hover:shadow-pink-600/50 hover:-translate-y-1 flex items-center justify-center gap-2"
+                      className="bg-pink-600 text-white px-8 py-3 md:py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-pink-700 transition-all shadow-lg shadow-pink-600/30 hover:shadow-pink-600/50 hover:-translate-y-1 flex items-center justify-center gap-2"
                     >
                       <CalendarCheck size={18} /> Book Appointment
                     </Link>
                     <Link 
                       to="/services" 
-                      className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-white hover:text-pink-900 transition-all text-center flex items-center justify-center"
+                      className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 md:py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-white hover:text-pink-900 transition-all text-center flex items-center justify-center"
                     >
                       Explore Services
                     </Link>
@@ -142,7 +161,7 @@ export const HeroCarousel = () => {
       </button>
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 md:gap-3">
+      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 md:gap-3">
         {slides.map((_, index) => (
           <button
             key={index}

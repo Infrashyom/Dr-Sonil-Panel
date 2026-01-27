@@ -5,7 +5,7 @@ import { storage } from '../../utils/storage';
 import { getYoutubeThumbnail, getInstagramEmbedUrl } from '../../utils/youtube';
 import { GalleryItem, HeroSlide } from '../../types';
 import { compressImage } from '../../utils/imageUtils';
-import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, Edit2, Instagram } from 'lucide-react';
+import { Plus, Trash2, X, UploadCloud, AlertTriangle, MonitorPlay, Loader2, Info, Image as ImageIcon, Video, Star, Edit2, Instagram, Smartphone, Monitor } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 
 export const GalleryManager = () => {
@@ -28,7 +28,7 @@ export const GalleryManager = () => {
   const [heroModal, setHeroModal] = useState(false);
   const [heroDeleteId, setHeroDeleteId] = useState<string | null>(null);
   const [heroEditingId, setHeroEditingId] = useState<string | null>(null); // Track edit mode
-  const [newHeroSlide, setNewHeroSlide] = useState({ url: '', title: '', subtitle: '' });
+  const [newHeroSlide, setNewHeroSlide] = useState<{ url: string; mobileUrl: string; title: string; subtitle: string }>({ url: '', mobileUrl: '', title: '', subtitle: '' });
   const [loading, setLoading] = useState(false);
 
   // Computed Counts
@@ -46,20 +46,30 @@ export const GalleryManager = () => {
     setHeroSlides(await storage.getHeroSlides());
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: Function, isHero = false) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, setter: Function, isHero = false, isMobile = false) => {
     const file = e.target.files?.[0];
     if (file) {
       setLoading(true);
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
-          const width = isHero ? 1920 : 1600;
+          const width = isHero ? (isMobile ? 800 : 1920) : 1600; // Optimize mobile image width
           const compressed = await compressImage(reader.result as string, width, 0.95);
-          setter((prev: any) => ({ ...prev, url: compressed }));
-          showToast('Image processed (High Quality)', 'info');
+          
+          if (isMobile && isHero) {
+             setter((prev: any) => ({ ...prev, mobileUrl: compressed }));
+          } else {
+             setter((prev: any) => ({ ...prev, url: compressed }));
+          }
+          
+          showToast(isMobile ? 'Mobile image processed' : 'Desktop image processed', 'info');
         } catch (error) {
           console.error("Compression failed", error);
-          setter((prev: any) => ({ ...prev, url: reader.result as string }));
+          if (isMobile && isHero) {
+             setter((prev: any) => ({ ...prev, mobileUrl: reader.result as string }));
+          } else {
+             setter((prev: any) => ({ ...prev, url: reader.result as string }));
+          }
         } finally {
           setLoading(false);
         }
@@ -80,7 +90,6 @@ export const GalleryManager = () => {
               category: item.category,
               featured: item.featured || false
           });
-          // Prevent editing URL/Type for existing items to simplify UI
       } else {
           setGalleryEditingId(null);
           setMediaType('image');
@@ -95,14 +104,12 @@ export const GalleryManager = () => {
     setLoading(true);
 
     if (galleryEditingId) {
-        // Edit Mode (Only Title & Category)
         await storage.updateGalleryItem(galleryEditingId, {
             title: newGalleryItem.title,
             category: newGalleryItem.category
         });
         showToast('Item updated successfully', 'success');
     } else {
-        // Add Mode
         await storage.addGalleryItem({ ...newGalleryItem, type: mediaType } as any);
         showToast('Gallery item added successfully', 'success');
     }
@@ -118,7 +125,6 @@ export const GalleryManager = () => {
     e.preventDefault();
     if (!newReelItem.url) return;
     setLoading(true);
-    // category 'events' is arbitrary for reels as they are filtered by type
     await storage.addGalleryItem({ ...newReelItem, category: 'events', type: 'reel', featured: false } as any);
     await refreshData();
     setNewReelItem({ url: '', title: '' });
@@ -161,10 +167,15 @@ export const GalleryManager = () => {
   const handleOpenHeroModal = (slide?: HeroSlide) => {
      if (slide) {
         setHeroEditingId(slide.id);
-        setNewHeroSlide({ url: slide.image, title: slide.title, subtitle: slide.subtitle });
+        setNewHeroSlide({ 
+            url: slide.image, 
+            mobileUrl: slide.mobileImage || '', 
+            title: slide.title, 
+            subtitle: slide.subtitle 
+        });
      } else {
         setHeroEditingId(null);
-        setNewHeroSlide({ url: '', title: '', subtitle: '' });
+        setNewHeroSlide({ url: '', mobileUrl: '', title: '', subtitle: '' });
      }
      setHeroModal(true);
   };
@@ -174,24 +185,23 @@ export const GalleryManager = () => {
     if (!newHeroSlide.url && !heroEditingId) return; 
     
     setLoading(true);
+    const payload = {
+        image: newHeroSlide.url,
+        mobileImage: newHeroSlide.mobileUrl,
+        title: newHeroSlide.title,
+        subtitle: newHeroSlide.subtitle
+    };
+
     if (heroEditingId) {
-        await storage.updateHeroSlide(heroEditingId, { 
-            image: newHeroSlide.url, 
-            title: newHeroSlide.title, 
-            subtitle: newHeroSlide.subtitle 
-        });
+        await storage.updateHeroSlide(heroEditingId, payload);
         showToast('Banner updated successfully', 'success');
     } else {
-        await storage.addHeroSlide({ 
-            image: newHeroSlide.url, 
-            title: newHeroSlide.title, 
-            subtitle: newHeroSlide.subtitle 
-        });
+        await storage.addHeroSlide(payload);
         showToast('Banner added successfully', 'success');
     }
     
     await refreshData();
-    setNewHeroSlide({ url: '', title: '', subtitle: '' });
+    setNewHeroSlide({ url: '', mobileUrl: '', title: '', subtitle: '' });
     setHeroEditingId(null);
     setLoading(false);
     setHeroModal(false);
@@ -352,13 +362,18 @@ export const GalleryManager = () => {
             </button>
             <div className="hidden md:flex items-center gap-2 text-xs text-pink-600 bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100">
               <Info size={14} />
-              <span>Recommended: <strong>1920 x 1080px</strong> (16:9)</span>
+              <span>Recommended: <strong>1920 x 1080px</strong> (16:9) for Desktop</span>
             </div>
           </div>
           <div className="space-y-4">
             {heroSlides.map(slide => (
               <div key={slide.id} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-pink-100 shadow-sm">
-                <img src={slide.image} className="w-32 h-20 object-cover rounded-lg" alt={slide.title} />
+                <img src={slide.image} className="w-32 h-20 object-cover rounded-lg border" alt={slide.title} />
+                {slide.mobileImage ? (
+                    <img src={slide.mobileImage} className="w-12 h-20 object-cover rounded-lg border hidden sm:block" alt="Mobile Version" />
+                ) : (
+                    <div className="w-12 h-20 bg-gray-50 border rounded-lg hidden sm:flex items-center justify-center text-gray-300 text-xs text-center p-1">No Mobile</div>
+                )}
                 <div className="flex-1">
                   <h4 className="font-bold text-pink-900">{slide.title}</h4>
                   <p className="text-xs text-gray-500">{slide.subtitle}</p>
@@ -382,10 +397,8 @@ export const GalleryManager = () => {
                <button type="button" onClick={() => setGalleryModal(false)} className="text-gray-400 hover:text-pink-600"><X size={24} /></button>
              </div>
              
-             {/* Hide Media Type & Upload if Editing to simplify */}
              {!galleryEditingId && (
                <>
-                 {/* Media Type Selector */}
                  <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
                    <button 
                      type="button" 
@@ -443,7 +456,6 @@ export const GalleryManager = () => {
                </>
              )}
              
-             {/* If Editing, show current image preview small */}
              {galleryEditingId && (
                  <div className="mb-6 p-4 bg-gray-50 rounded-xl flex items-center gap-4">
                     <img src={newGalleryItem.url.includes('youtube') ? getYoutubeThumbnail(newGalleryItem.url) : newGalleryItem.url} className="w-20 h-20 object-cover rounded-lg bg-gray-200" alt="Preview"/>
@@ -532,30 +544,52 @@ export const GalleryManager = () => {
       {/* Hero Modal */}
       {heroModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-pink-900/20 backdrop-blur-sm">
-          <form onSubmit={saveHeroSlide} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100">
+          <form onSubmit={saveHeroSlide} className="bg-white p-8 rounded-3xl w-full max-w-lg shadow-2xl border border-pink-100 max-h-[90vh] overflow-y-auto">
              <div className="flex justify-between items-center mb-6">
                <h3 className="text-xl font-serif font-bold text-pink-900">{heroEditingId ? 'Edit Banner' : 'Add Home Banner'}</h3>
                <button type="button" onClick={() => setHeroModal(false)} className="text-gray-400 hover:text-pink-600"><X size={24} /></button>
              </div>
              
+             {/* Desktop Image */}
              <div className="mb-6">
+                <label className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2"><Monitor size={14}/> Desktop Image (Landscape)</label>
                 <label className="block w-full cursor-pointer group">
-                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewHeroSlide, true)} />
-                  <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${newHeroSlide.url ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewHeroSlide, true, false)} />
+                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${newHeroSlide.url ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
                     {newHeroSlide.url ? (
-                      <img src={newHeroSlide.url} className="w-full h-48 object-cover rounded-lg shadow-sm" alt="Preview" />
+                      <img src={newHeroSlide.url} className="w-full h-32 object-cover rounded-lg shadow-sm" alt="Preview" />
                     ) : (
-                      <div className="flex flex-col items-center text-gray-400 group-hover:text-pink-600">
-                        <UploadCloud size={48} className="mb-2" />
-                        <span className="text-sm font-medium">Click to upload banner</span>
-                        <span className="text-xs mt-1 text-gray-300">1920x1080 recommended</span>
+                      <div className="flex flex-col items-center text-gray-400 group-hover:text-pink-600 py-4">
+                        <UploadCloud size={32} className="mb-2" />
+                        <span className="text-xs font-medium">Upload Desktop Image</span>
+                        <span className="text-[10px] mt-1 text-gray-300">1920x1080 (16:9)</span>
                       </div>
                     )}
                   </div>
                 </label>
              </div>
 
-             {loading && !newHeroSlide.url && <div className="text-center py-4 text-pink-600"><Loader2 className="animate-spin mx-auto"/> Processing...</div>}
+             {/* Mobile Image */}
+             <div className="mb-6">
+                <label className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2"><Smartphone size={14}/> Mobile Image (Portrait)</label>
+                <label className="block w-full cursor-pointer group">
+                  <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, setNewHeroSlide, true, true)} />
+                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${newHeroSlide.mobileUrl ? 'border-pink-300 bg-pink-50' : 'border-gray-200 hover:border-pink-300 hover:bg-pink-50'}`}>
+                    {newHeroSlide.mobileUrl ? (
+                      <img src={newHeroSlide.mobileUrl} className="w-32 h-32 object-cover rounded-lg shadow-sm mx-auto" alt="Mobile Preview" />
+                    ) : (
+                      <div className="flex flex-col items-center text-gray-400 group-hover:text-pink-600 py-4">
+                        <UploadCloud size={32} className="mb-2" />
+                        <span className="text-xs font-medium">Upload Mobile Image</span>
+                        <span className="text-[10px] mt-1 text-gray-300">Optional: 1080x1350 (4:5)</span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+                <p className="text-[10px] text-gray-400 mt-1 italic">If no mobile image is uploaded, desktop image will be cropped.</p>
+             </div>
+
+             {loading && (!newHeroSlide.url || !newHeroSlide.mobileUrl) && <div className="text-center py-4 text-pink-600"><Loader2 className="animate-spin mx-auto"/> Processing...</div>}
              
              <div className="space-y-4">
                <input 
