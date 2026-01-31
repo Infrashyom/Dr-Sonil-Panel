@@ -176,7 +176,7 @@ export const Home = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-transparent to-transparent"></div>
                       <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 text-white z-20">
                          <p className="text-xs md:text-sm font-bold uppercase tracking-wider mb-2 opacity-90">Experience</p>
-                         <p className="text-4xl md:text-5xl font-serif font-bold">10+ Years</p>
+                         <p className="text-4xl md:text-5xl font-serif font-bold">19+ Years</p>
                       </div>
                     </div>
                     {/* Floating badge */}
@@ -249,7 +249,7 @@ export const Home = () => {
                 { icon: Baby, label: "IVF Babies", value: "3000+" },
                 { icon: Users, label: "Happy Patients", value: "12k+" },
                 { icon: Star, label: "Success Rate", value: "98%" },
-                { icon: Microscope, label: "Experience", value: "10 Yrs" }
+                { icon: Microscope, label: "Experience", value: "19 Yrs" }
               ].map((stat, idx) => {
                  const num = parseInt(stat.value);
                  const suffix = stat.value.replace(/[0-9]/g, '');

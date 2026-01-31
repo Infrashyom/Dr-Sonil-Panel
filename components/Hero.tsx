@@ -59,7 +59,7 @@ export const Hero = () => {
                  </div>
                  <div className="w-px h-12 bg-pink-300/50"></div>
                  <div>
-                    <h3 className="text-4xl font-serif font-bold text-pink-900">15+</h3>
+                    <h3 className="text-4xl font-serif font-bold text-pink-900">19+</h3>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-pink-600 font-bold mt-1">Years Exp.</p>
                  </div>
             </div>
