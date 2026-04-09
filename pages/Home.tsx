@@ -156,7 +156,7 @@ export const Home = () => {
                     {config?.doctorName || 'Dr. Sonil'}
                 </h2>
                 <h3 className="text-xl font-medium text-pink-700 italic">
-                    {config?.designation || 'Specialist'}
+                    {config?.designation === 'Best Gynecologist & IVF Specialist' ? 'Best Gynecologist In Bhopal & IVF Specialist In Bhopal' : (config?.designation || 'Specialist')}
                 </h3>
             </div>
 
@@ -202,7 +202,7 @@ export const Home = () => {
                           {config?.doctorName || 'Dr. Sonil'}
                       </h2>
                       <h3 className="text-2xl font-medium text-pink-700 italic">
-                          {config?.designation || 'Specialist'}
+                          {config?.designation === 'Best Gynecologist & IVF Specialist' ? 'Best Gynecologist In Bhopal & IVF Specialist In Bhopal' : (config?.designation || 'Specialist')}
                       </h3>
                   </div>
 
@@ -398,7 +398,7 @@ export const Home = () => {
                 ))}
              </div>
            ) : (
-             <div className="text-center text-gray-400 py-10 italic">No featured images available. Star images in Admin Gallery to show them here.</div>
+             <div className="text-center text-gray-400 py-10 italic">No featured images available. Star images in Admin &gt; Gallery to show them here.</div>
            )}
            <div className="text-center mt-12">
               <Link to="/gallery" className="inline-block border-2 border-[#590d22] text-[#590d22] px-10 py-3 rounded-full font-bold uppercase text-sm hover:bg-[#590d22] hover:text-white transition-all">View Full Gallery</Link>

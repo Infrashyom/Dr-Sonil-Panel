@@ -82,7 +82,7 @@ export const HeroCarousel = () => {
                  <img 
                     src={getOptimizedUrl(slide.mobileImage, 800)} 
                     alt={slide.title} 
-                    className={`md:hidden w-full h-full object-cover object-center`}
+                    className={`md:hidden w-full h-full object-cover object-top`}
                     loading={index === 0 ? "eager" : "lazy"} 
                  />
               ) : (
@@ -90,7 +90,7 @@ export const HeroCarousel = () => {
                  <img 
                     src={getOptimizedUrl(slide.image, 800)} 
                     alt={slide.title} 
-                    className={`md:hidden w-full h-full object-cover object-center transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                    className={`md:hidden w-full h-full object-cover object-top transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
                     loading={index === 0 ? "eager" : "lazy"} 
                  />
               )}
@@ -99,7 +99,7 @@ export const HeroCarousel = () => {
               <img 
                 src={getOptimizedUrl(slide.image, 1920)} 
                 alt={slide.title} 
-                className={`hidden md:block w-full h-full object-cover object-center transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
+                className={`hidden md:block w-full h-full object-cover object-top transition-transform duration-[8000ms] ease-out ${isActive ? 'scale-110' : 'scale-100'}`}
                 loading={index === 0 ? "eager" : "lazy"} 
               />
             </div>
@@ -116,7 +116,7 @@ export const HeroCarousel = () => {
                   
                   {/* Title */}
                   <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-bold text-white mb-4 leading-tight md:leading-[1.1] drop-shadow-lg">
-                    {slide.title}
+                    {slide.title.replace('Best Gynecologist & IVF Specialist', 'Best Gynecologist In Bhopal & IVF Specialist In Bhopal')}
                   </h1>
                   
                   {/* Subtitle */}

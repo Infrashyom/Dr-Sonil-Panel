@@ -8,7 +8,7 @@ const configSchema = new mongoose.Schema({
   // Basic Info
   name: { type: String, default: "Dr. Sonil Women's Care Centre" },
   doctorName: { type: String, default: "Dr. Sonil Srivastava" },
-  designation: { type: String, default: "Best Gynecologist & IVF Specialist" },
+  designation: { type: String, default: "Best Gynecologist In Bhopal & IVF Specialist In Bhopal" },
   
   // Images
   logo: { type: String, default: '' }, // Dynamic Logo

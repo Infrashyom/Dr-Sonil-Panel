@@ -234,7 +234,7 @@ const Footer = () => {
                </li>
                <li className="flex items-center gap-3">
                    <div className="text-pink-500 shrink-0"><Phone size={14} /></div>
-                   <span className="font-mono text-gray-300">{config.phone}</span>
+                   <a href={`tel:${config.phone}`} className="font-mono text-gray-300 hover:text-white transition-colors">{config.phone}</a>
                </li>
                <li className="flex items-center gap-3">
                    <div className="text-pink-500 shrink-0"><Mail size={14} /></div>
