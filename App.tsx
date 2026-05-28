@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { storage } from './utils/storage';
 import { ToastProvider } from './components/Toast';
 import { Loader2 } from 'lucide-react';
+import { GlobalSchemas } from './components/SchemaMarkup';
 
 // Lazy Load Pages
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
@@ -88,6 +89,7 @@ function App() {
     <ToastProvider>
       <Router>
         <ScrollToTop />
+        <GlobalSchemas />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* 1. Admin Login (Standalone) */}

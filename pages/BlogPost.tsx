@@ -5,6 +5,7 @@ import { storage } from '../utils/storage';
 import { BlogPost as BlogPostType } from '../types';
 import { ArrowLeft, Calendar, User, Share2, Loader2 } from 'lucide-react';
 import { getOptimizedUrl } from '../utils/imageUtils';
+import { BlogSchema } from '../components/SchemaMarkup';
 
 export const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +44,14 @@ export const BlogPost = () => {
 
   return (
     <div className="bg-white min-h-screen pt-24 pb-24">
+       <BlogSchema 
+          blogId={blog.id || (blog as any)._id || id} 
+          headline={blog.title} 
+          description={blog.summary} 
+          image={blog.image} 
+          datePublished={new Date(blog.createdAt).toISOString().split('T')[0]} 
+          dateModified={(blog as any).updatedAt ? new Date((blog as any).updatedAt).toISOString().split('T')[0] :undefined} 
+       />
        <div className="max-w-[95%] 2xl:max-w-[1400px] mx-auto px-4 sm:px-6">
           
           {/* Navigation */}
