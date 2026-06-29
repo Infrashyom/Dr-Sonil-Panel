@@ -97,13 +97,13 @@ const Navbar = () => {
               
             {/* RIGHT: Actions */}
             <div className="hidden lg:flex items-center gap-4 shrink-0">
-               <Link
-                to="/contact"
+               <a
+                href={`tel:${config?.phone || ''}`}
                 className="bg-[#590d22] text-white px-6 py-2 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-[#800f2f] transition-all shadow-md hover:shadow-lg flex items-center gap-2"
               >
                 <span>Book Appointment</span>
                 <ArrowRight size={16} />
-              </Link>
+              </a>
             </div>
 
             {/* Mobile Toggle */}
@@ -159,13 +159,13 @@ const Navbar = () => {
           </div>
 
           <div className="p-8 bg-gray-50 border-t border-gray-100">
-             <Link
-                to="/contact"
+             <a
+                href={`tel:${config?.phone || ''}`}
                 className="w-full bg-[#590d22] text-white py-4 rounded-xl font-bold text-center block shadow-lg mb-6 hover:bg-[#800f2f] transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 Book Appointment
-              </Link>
+              </a>
              <div className="flex justify-center gap-8 text-gray-400">
                {config?.socials?.instagram && <a href={config.socials.instagram} target="_blank" rel="noreferrer"><Instagram size={24} className="hover:text-pink-600 cursor-pointer transition-colors" /></a>}
                {config?.socials?.facebook && <a href={config.socials.facebook} target="_blank" rel="noreferrer"><Facebook size={24} className="hover:text-blue-600 cursor-pointer transition-colors" /></a>}

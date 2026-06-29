@@ -12,13 +12,16 @@ export const HeroCarousel = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    const loadSlides = async () => {
-      const data = await storage.getHeroSlides();
-      setSlides(data);
+    const loadData = async () => {
+      const slidesData = await storage.getHeroSlides();
+      const configData = await storage.getConfig();
+      setSlides(slidesData);
+      setConfig(configData);
     };
-    loadSlides();
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -126,12 +129,12 @@ export const HeroCarousel = () => {
                   
                   {/* Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                    <Link 
-                      to="/contact" 
+                    <a 
+                      href={`tel:${config?.phone || ''}`}
                       className="bg-pink-600 text-white px-8 py-3 md:py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-pink-700 transition-all shadow-lg shadow-pink-600/30 hover:shadow-pink-600/50 hover:-translate-y-1 flex items-center justify-center gap-2"
                     >
                       <CalendarCheck size={18} /> Book Appointment
-                    </Link>
+                    </a>
                     <Link 
                       to="/services" 
                       className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 md:py-4 rounded-full font-bold uppercase tracking-wider text-xs md:text-sm hover:bg-white hover:text-pink-900 transition-all text-center flex items-center justify-center"
