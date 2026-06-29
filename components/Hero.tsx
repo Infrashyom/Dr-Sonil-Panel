@@ -1,10 +1,17 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Play } from 'lucide-react';
 import { FadeInUp, AnimatedBlobs } from './Animations';
+import { storage } from '../utils/storage';
 
 export const Hero = () => {
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    storage.getConfig().then(data => setConfig(data));
+  }, []);
+
   return (
     <div className="relative min-h-[95vh] w-full overflow-hidden flex items-center pt-20">
       <AnimatedBlobs />
@@ -42,9 +49,9 @@ export const Hero = () => {
               </p>
               
               <div className="flex flex-wrap gap-5">
-                 <Link to="/contact" className="group px-8 py-4 bg-pink-900 text-white rounded-full font-bold text-sm uppercase tracking-wider hover:bg-pink-700 transition-all shadow-xl hover:shadow-pink-900/30 flex items-center">
-                    Book Visit <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                 </Link>
+                 <a href={`tel:${config?.phone || ''}`} className="group px-8 py-4 bg-pink-900 text-white rounded-full font-bold text-sm uppercase tracking-wider hover:bg-pink-700 transition-all shadow-xl hover:shadow-pink-900/30 flex items-center">
+                    Book Appointment <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                 </a>
                  <button className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-pink-600 shadow-lg hover:scale-110 transition-transform hover:shadow-xl border border-pink-50">
                     <Play className="ml-1 fill-current" size={20} />
                  </button>

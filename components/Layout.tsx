@@ -220,7 +220,7 @@ const Footer = () => {
                 <li><Link to="/services" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Our Services</Link></li>
                 <li><Link to="/doctors" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Medical Team</Link></li>
                 <li><Link to="/blogs" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Health Blog</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Book Appointment</Link></li>
+                <li><a href={`tel:${config?.phone || ''}`} className="hover:text-white transition-colors block hover:translate-x-1 duration-200">Book Appointment</a></li>
             </ul>
           </div>
 

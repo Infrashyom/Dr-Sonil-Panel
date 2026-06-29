@@ -226,9 +226,9 @@ export const Home = () => {
                     <Link to="/about" className="px-8 py-4 bg-[#590d22] text-white rounded-full font-bold uppercase tracking-wider text-sm hover:bg-[#800f2f] transition-all shadow-lg hover:-translate-y-1 text-center">
                       Read Full Profile
                     </Link>
-                    <Link to="/contact" className="px-8 py-4 bg-white border border-gray-300 text-gray-900 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-gray-50 transition-all hover:-translate-y-1 text-center">
+                    <a href={`tel:${config?.phone || ''}`} className="px-8 py-4 bg-white border border-gray-300 text-gray-900 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-gray-50 transition-all hover:-translate-y-1 text-center">
                       Book Appointment
-                    </Link>
+                    </a>
                   </div>
                 </FadeInUp>
               </div>

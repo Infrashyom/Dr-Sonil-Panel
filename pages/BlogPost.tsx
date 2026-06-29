@@ -10,13 +10,16 @@ import { BlogSchema } from '../components/SchemaMarkup';
 export const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
   const [blog, setBlog] = useState<BlogPostType | null>(null);
+  const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlog = async () => {
       if (id) {
         const data = await storage.getBlogById(id);
+        const configData = await storage.getConfig();
         setBlog(data);
+        setConfig(configData);
         setLoading(false);
       }
     };
@@ -121,9 +124,9 @@ export const BlogPost = () => {
              <div className="bg-gradient-to-br from-pink-50 to-white border border-pink-100 rounded-[2.5rem] p-8 md:p-12 text-center shadow-lg">
                 <h3 className="text-2xl md:text-3xl font-serif font-bold text-pink-900 mb-4">Ready to consult with {blog.author}?</h3>
                 <p className="text-gray-600 mb-8 max-w-lg mx-auto text-base md:text-lg">Book an appointment today to discuss your health concerns personally.</p>
-                <Link to="/contact" className="inline-block bg-pink-900 text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-pink-800 transition-all shadow-xl hover:-translate-y-1 hover:shadow-pink-900/30">
+                <a href={`tel:${config?.phone || ''}`} className="inline-block bg-pink-900 text-white px-10 py-4 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-pink-800 transition-all shadow-xl hover:-translate-y-1 hover:shadow-pink-900/30">
                    Book Appointment
-                </Link>
+                </a>
              </div>
           </div>
        </div>

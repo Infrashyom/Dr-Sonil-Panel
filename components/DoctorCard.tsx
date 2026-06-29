@@ -1,10 +1,17 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Doctor } from '../types';
 import { Instagram, Stethoscope } from 'lucide-react';
+import { storage } from '../utils/storage';
 
 export const DoctorCard: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
+  const [config, setConfig] = useState<any>(null);
+  
+  useEffect(() => {
+    storage.getConfig().then(data => setConfig(data));
+  }, []);
+
   return (
     <div className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
         {/* Image Container */}
@@ -53,9 +60,9 @@ export const DoctorCard: React.FC<{ doctor: Doctor }> = ({ doctor }) => {
                </div>
             </div>
 
-            <Link to="/contact" className="w-full block text-center bg-gray-900 text-white py-4 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-pink-700 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+            <a href={`tel:${config?.phone || ''}`} className="w-full block text-center bg-gray-900 text-white py-4 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-pink-700 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                 Book Appointment
-            </Link>
+            </a>
         </div>
     </div>
   );

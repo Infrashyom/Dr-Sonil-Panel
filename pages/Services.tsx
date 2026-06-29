@@ -8,9 +8,11 @@ import { IconMapper } from '../components/IconMapper';
 
 export const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
     storage.getContent('service').then(data => setServices(data.map(i => i.data)));
+    storage.getConfig().then(data => setConfig(data));
   }, []);
 
   return (
@@ -80,9 +82,9 @@ export const Services = () => {
            <p className="text-pink-100 text-lg mb-8 font-light">
              We are available for consultation regarding any gynecological or fertility concerns.
            </p>
-           <Link to="/contact" className="inline-flex items-center bg-white text-[#590d22] px-10 py-4 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-pink-50 transition-colors shadow-xl">
+           <a href={`tel:${config?.phone || ''}`} className="inline-flex items-center bg-white text-[#590d22] px-10 py-4 rounded-full font-bold uppercase tracking-wider text-sm hover:bg-pink-50 transition-colors shadow-xl">
              Book Your Consultation
-           </Link>
+           </a>
         </div>
       </div>
     </div>
